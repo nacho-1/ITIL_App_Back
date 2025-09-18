@@ -26,6 +26,8 @@ jobs:
 
     env:
         SQLX_OFFLINE: 1
+        DATABASE_URL: postgres://itil_back:itil_back@localhost:5432/itil_back
+        APP_DATABASE__URL: ${DATABASE_URL}
     services:
       postgres:
         image: postgres
@@ -88,7 +90,12 @@ jobs:
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: migrate
       run: |
+        export DATABASE_URL=postgres://itil_back:itil_back@localhost:5432/itil_back
+        export APP_DATABASE__URL=$DATABASE_URL
         cargo db reset
+
+        export DATABASE_URL=postgres://itil_back_test:itil_back_test@localhost:5433/itil_back_test
+        export APP_DATABASE__URL=$DATABASE_URL
         cargo db reset -e test
     - name: test
       run: cargo test
