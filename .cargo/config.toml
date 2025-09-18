@@ -1,0 +1,3 @@
+[alias]
+db = ["run", "--package", "itil-back-cli", "--bin", "db", "--"]
+generate = ["run", "--package", "itil-back-cli", "--bin", "generate", "--"]
