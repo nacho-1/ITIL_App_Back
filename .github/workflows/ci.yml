@@ -27,7 +27,7 @@ jobs:
     env:
         SQLX_OFFLINE: 1
         DATABASE_URL: postgres://itil_back:itil_back@localhost:5432/itil_back
-        APP_DATABASE__URL: ${DATABASE_URL}
+        APP_DATABASE__URL: ${{ env.DATABASE_URL }}
     services:
       postgres:
         image: postgres
