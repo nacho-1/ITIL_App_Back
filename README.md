@@ -29,7 +29,7 @@ The project uses `.env` and `.env.test` files to store configuration settings fo
 A Docker setup with preconfigured databases for the development and test environments is created out-of-the-box with the project. Boot the containers with
 
 ```
-docker compose up
+docker compose up postgres postgres_test
 ```
 
 The `.env` and `.env.test` contain matching configuration out-of-the-box.
@@ -59,6 +59,17 @@ Generating project files like entities, controllers, tests, etc. (see the [CLI c
 ```
 cargo generate
 ```
+
+### Running in docker
+
+The projects supports being run inside docker. It will run with its 'production' configuration.
+
+Run the following command at the project's root:
+
+```
+docker compose up --build app postgres
+```
+
 
 Building the project's docs:
 

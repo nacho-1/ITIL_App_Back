@@ -16,6 +16,8 @@ pub mod error;
 pub mod middlewares;
 /// Contains the application's route definitions.
 pub mod routes;
+/// Contains utilities for handling gracefull shutdown of the application.
+pub mod shutdown;
 /// Contains the application state definition and functionality to initialize it.
 pub mod state;
 
@@ -38,7 +40,9 @@ pub async fn run() -> anyhow::Result<()> {
     let addr = config.server.addr();
     let listener = TcpListener::bind(&addr).await?;
     info!("Listening on {}", &addr);
-    serve(listener, app.into_make_service()).await?;
+    serve(listener, app.into_make_service())
+        .with_graceful_shutdown(shutdown::shutdown_signal())
+        .await?;
 
     Ok(())
 }

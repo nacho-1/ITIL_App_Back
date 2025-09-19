@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   postgres:
     image: "postgres"
@@ -9,6 +8,12 @@ services:
       POSTGRES_DB: itil_back
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U itil_back -d itil_back"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   postgres_test:
     image: "postgres"
     restart: always
@@ -18,3 +23,14 @@ services:
       POSTGRES_DB: itil_back_test
     ports:
       - 5433:5432
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://itil_back:itil_back@postgres:5432/itil_back
+      APP_DATABASE__URL: postgres://itil_back:itil_back@postgres:5432/itil_back
+    ports:
+      - "3000:3000"
