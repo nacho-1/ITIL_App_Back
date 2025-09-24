@@ -57,20 +57,10 @@ jobs:
     name: "Test"
     runs-on: ubuntu-latest
 
+    env:
+        DATABASE_URL: postgres://itil_back_test:itil_back_test@localhost:5432/itil_back_test
+        APP_DATABASE__URL: postgres://itil_back_test:itil_back_test@localhost:5432/itil_back_test
     services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_DB: itil_back
-          POSTGRES_USER: itil_back
-          POSTGRES_PASSWORD: itil_back
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
       postgres_test:
         image: postgres
         env:
@@ -90,12 +80,7 @@ jobs:
     - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: migrate
       run: |
-        export DATABASE_URL=postgres://itil_back:itil_back@localhost:5432/itil_back
-        export APP_DATABASE__URL=$DATABASE_URL
-        cargo db reset
-
-        export DATABASE_URL=postgres://itil_back_test:itil_back_test@localhost:5433/itil_back_test
-        export APP_DATABASE__URL=$DATABASE_URL
         cargo db reset -e test
     - name: test
-      run: cargo test
+      run: |
+        cargo test
