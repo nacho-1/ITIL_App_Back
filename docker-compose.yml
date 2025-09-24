@@ -34,3 +34,14 @@ services:
       APP_DATABASE__URL: postgres://itil_back:itil_back@postgres:5432/itil_back
     ports:
       - "3000:3000"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://itil_back:itil_back@postgres:5432/itil_back
+    entrypoint: ["sqlx", "migrate", "run"]

@@ -1,0 +1,24 @@
+# Use a lightweight Rust image to get cargo/sqlx-cli
+FROM rust:slim AS builder
+
+# Install dependencies for building sqlx-cli with native-tls + Postgres
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install sqlx-cli
+RUN cargo install sqlx-cli --no-default-features --features native-tls,postgres
+
+# Copy only the migrations folder
+COPY db/migrations/ migrations/
+
+# Set environment variables for SQLx offline mode (not needed here, we want online)
+ENV SQLX_OFFLINE=0
+
+# Default command: run migrations
+CMD ["sh", "-c", "echo 'Please override command with database URL'"]

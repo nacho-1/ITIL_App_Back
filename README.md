@@ -67,6 +67,10 @@ The projects supports being run inside docker. It will run with its 'production'
 Run the following command at the project's root:
 
 ```
+# Apply migrations
+docker compose run --rm --build migrate
+
+# Start the app
 docker compose up --build app postgres
 ```
 

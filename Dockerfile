@@ -8,17 +8,20 @@ COPY rust-toolchain.toml .
 RUN rustup toolchain install
 
 FROM chef AS planner
+
 COPY . .
 # Compute a lock-like file for project
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
+
 COPY --from=planner /usr/src/app/recipe.json recipe.json
 
 # Build project's dependencies, not our application!
 RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
+ENV SQLX_OFFLINE=1 
 RUN cargo build --release --bin itil-back-web
 
 FROM debian:bookworm-slim AS runtime
