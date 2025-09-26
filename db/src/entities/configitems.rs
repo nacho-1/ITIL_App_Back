@@ -1,15 +1,15 @@
 //#[cfg(feature = "test-helpers")]
-//use fake::{faker::chrono::en::DateTimeBetween, faker::lorem::en::*, Dummy};
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::types::chrono::DateTime;
 use sqlx::types::chrono::Utc;
 use sqlx::Postgres;
 use sqlx::Type;
+use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
-#[derive(Serialize, Debug, Deserialize)]
+#[derive(Serialize, Debug, Deserialize, ToSchema)]
 pub struct ConfigItem {
     pub id: Uuid,
     pub name: String,
@@ -20,35 +20,23 @@ pub struct ConfigItem {
     pub description: String,
 }
 
-#[derive(Deserialize, Validate, Clone)]
+#[derive(Deserialize, Validate, Clone, ToSchema)]
 #[cfg_attr(feature = "test-helpers", derive(Serialize))]
 pub struct ConfigItemChangeset {
-    //#[cfg_attr(feature = "test-helpers", dummy(faker = "Sentence(3..8)"))]
     #[validate(length(min = 1, max = 255))]
     pub name: String,
     pub status: CIStatus,
-    /*
-    #[cfg_attr(
-        feature = "test-helpers",
-        dummy(faker = "DateTimeBetween(
-        Utc::now() - chrono::Duration::days(365), Utc::now()
-    )")
-    )]
-    */
     pub created_at: Option<DateTime<Utc>>,
-    //#[cfg_attr(feature = "test-helpers", dummy(faker = "Optional(Some(Words(1..4)))"))]
     #[validate(length(min = 1, max = 31))]
     pub r#type: Option<String>,
-    //#[cfg_attr(feature = "test-helpers", dummy(faker = "…()"))]
     #[validate(length(min = 1, max = 63))]
     pub owner: Option<String>,
-    //#[cfg_attr(feature = "test-helpers", dummy(faker = "…()"))]
     #[validate(length(max = 255))]
     pub description: String,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type)]
-//#[cfg_attr(feature = "test-helpers", derive(Dummy))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
+#[schema(example = "active")]
 #[sqlx(type_name = "cistatus", rename_all = "lowercase")]
 pub enum CIStatus {
     Active,

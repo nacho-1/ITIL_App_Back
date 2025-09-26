@@ -8,6 +8,8 @@ use tracing::info;
 use tracing_panic::panic_hook;
 use tracing_subscriber::{filter::EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
+/// Contains utilities for API documentation.
+pub mod apidoc;
 /// The application's controllers that implement request handlers.
 pub mod controllers;
 /// Contains the application's error type and related conversion implementation.

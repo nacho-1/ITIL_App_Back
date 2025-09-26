@@ -1,5 +1,13 @@
-use crate::{controllers::configitems, state::AppState};
-use axum::{routing, Router};
+use crate::{
+    apidoc::ApiDoc,
+    controllers::{configitems, health},
+    state::AppState,
+};
+use axum::Router;
+use utoipa::OpenApi;
+use utoipa_axum::router::OpenApiRouter;
+use utoipa_axum::routes;
+use utoipa_swagger_ui::SwaggerUi;
 
 use std::sync::Arc;
 
@@ -8,11 +16,21 @@ use std::sync::Arc;
 /// This function maps paths (e.g. "/greet") and HTTP methods (e.g. "GET") to functions in [`crate::controllers`] as well as includes middlewares defined in [`crate::middlewares`] into the routing layer (see [`axum::Router`]).
 pub fn init_routes(app_state: AppState) -> Router {
     let shared_app_state = Arc::new(app_state);
-    Router::new()
-        .route("/configitems", routing::post(configitems::create))
-        .route("/configitems", routing::get(configitems::read_all))
-        .route("/configitems/{id}", routing::get(configitems::read_one))
-        .route("/configitems/{id}", routing::put(configitems::update))
-        .route("/configitems/{id}", routing::delete(configitems::delete))
+    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        .routes(routes!(health::health))
+        .nest("/api/configitems", configitems_router())
         .with_state(shared_app_state)
+        .split_for_parts();
+
+    router.merge(SwaggerUi::new("/swagger-ui").url("/apidoc/openapi.json", api))
+}
+
+pub fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
+    OpenApiRouter::new()
+        .routes(routes!(configitems::create, configitems::read_all,))
+        .routes(routes!(
+            configitems::read_one,
+            configitems::update,
+            configitems::delete,
+        ))
 }

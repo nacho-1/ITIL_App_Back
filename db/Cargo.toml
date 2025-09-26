@@ -23,3 +23,5 @@ thiserror = "2.0"
 uuid = { version = "1.5", features = ["serde"] }
 validator = { version = "0.20", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
+utoipa = { version = "5.4", features = ["chrono", "uuid"] }
+

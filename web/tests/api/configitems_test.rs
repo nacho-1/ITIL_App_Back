@@ -55,7 +55,7 @@ async fn test_create_invalid(context: &DbTestContext) {
 
         let response = context
             .app
-            .request("/configitems")
+            .request("/api/configitems")
             .method(Method::POST)
             .body(Body::from(payload.to_string()))
             .header(http::header::CONTENT_TYPE, "application/json")
@@ -73,7 +73,7 @@ async fn test_create_success(context: &DbTestContext) {
 
     let response = context
         .app
-        .request("/configitems")
+        .request("/api/configitems")
         .method(Method::POST)
         .body(Body::from(payload.to_string()))
         .header(http::header::CONTENT_TYPE, "application/json")
@@ -96,7 +96,7 @@ async fn test_read_all(context: &DbTestContext) {
         .await
         .unwrap();
 
-    let response = context.app.request("/configitems").send().await;
+    let response = context.app.request("/api/configitems").send().await;
 
     assert_that!(response.status(), eq(StatusCode::OK));
 
@@ -112,7 +112,7 @@ async fn test_read_all(context: &DbTestContext) {
 async fn test_read_one_nonexistent(context: &DbTestContext) {
     let response = context
         .app
-        .request(&format!("/configitems/{}", Uuid::new_v4()))
+        .request(&format!("/api/configitems/{}", Uuid::new_v4()))
         .send()
         .await;
 
@@ -129,7 +129,7 @@ async fn test_read_one_success(context: &DbTestContext) {
 
     let response = context
         .app
-        .request(&format!("/configitems/{}", configitem_id))
+        .request(&format!("/api/configitems/{}", configitem_id))
         .send()
         .await;
 
@@ -157,7 +157,7 @@ async fn test_update_invalid(context: &DbTestContext) {
 
     let response = context
         .app
-        .request(&format!("/configitems/{}", configitem.id))
+        .request(&format!("/api/configitems/{}", configitem.id))
         .method(Method::PUT)
         .body(Body::from(payload.to_string()))
         .header(http::header::CONTENT_TYPE, "application/json")
@@ -179,7 +179,7 @@ async fn test_update_nonexistent(context: &DbTestContext) {
 
     let response = context
         .app
-        .request(&format!("/configitems/{}", Uuid::new_v4()))
+        .request(&format!("/api/configitems/{}", Uuid::new_v4()))
         .method(Method::PUT)
         .body(Body::from(payload.to_string()))
         .header(http::header::CONTENT_TYPE, "application/json")
@@ -204,7 +204,7 @@ async fn test_update_success(context: &DbTestContext) {
 
     let response = context
         .app
-        .request(&format!("/configitems/{}", configitem.id))
+        .request(&format!("/api/configitems/{}", configitem.id))
         .method(Method::PUT)
         .body(Body::from(payload.to_string()))
         .header(http::header::CONTENT_TYPE, "application/json")
@@ -229,7 +229,7 @@ async fn test_update_success(context: &DbTestContext) {
 async fn test_delete_nonexistent(context: &DbTestContext) {
     let response = context
         .app
-        .request(&format!("/configitems/{}", Uuid::new_v4()))
+        .request(&format!("/api/configitems/{}", Uuid::new_v4()))
         .method(Method::DELETE)
         .send()
         .await;
@@ -246,7 +246,7 @@ async fn test_delete_success(context: &DbTestContext) {
 
     let response = context
         .app
-        .request(&format!("/configitems/{}", configitem.id))
+        .request(&format!("/api/configitems/{}", configitem.id))
         .method(Method::DELETE)
         .send()
         .await;
