@@ -39,6 +39,7 @@ pub struct ConfigItemChangeset {
 #[schema(example = "active")]
 #[sqlx(type_name = "cistatus", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(test, derive(PartialEq))]
 pub enum CIStatus {
     Active,
     Inactive,
@@ -176,10 +177,9 @@ pub async fn delete(
 #[cfg(test)]
 mod config_item_test {
     use super::*;
-    //use serde_json::json;
 
     #[test]
-    fn test_deserialize_changeset() {
+    fn test_serialize_changeset() {
         let changeset = ConfigItemChangeset {
             name: String::from("Testing Configuration Item"),
             status: CIStatus::Active,
@@ -196,5 +196,51 @@ mod config_item_test {
         assert!(json.contains("\"created_at\":\"2023-09-15T12:34:56Z\""));
         assert!(json.contains("\"status\":\"active\""));
         assert!(json.contains("\"description\":\"This is a testing configuration item.\""));
+    }
+
+    #[test]
+    fn test_deserialize_complete_changeset() {
+        let json = r#"
+        {
+            "name": "T1",
+            "status": "inmaintenance",
+            "created_at": "2023-09-15T12:34:56Z",
+            "type": "Testing",
+            "owner": "Test Area",
+            "description": "My desc."
+        }"#;
+
+        let changeset: ConfigItemChangeset = serde_json::from_str(json).unwrap();
+
+        assert_eq!(changeset.name, String::from("T1"));
+        assert_eq!(changeset.status, CIStatus::InMaintenance);
+        assert_eq!(
+            changeset.created_at,
+            Some("2023-09-15T12:34:56Z".parse().unwrap())
+        );
+        assert_eq!(changeset.r#type, Some(String::from("Testing")));
+        assert_eq!(changeset.owner, Some(String::from("Test Area")));
+        assert_eq!(changeset.description, String::from("My desc."));
+    }
+
+    #[test]
+    fn test_deserialize_incomplete_changeset() {
+        let json = r#"
+        {
+            "name": "T1",
+            "status": "inmaintenance",
+            "created_at": null,
+            "type": null,
+            "description": ""
+        }"#;
+
+        let changeset: ConfigItemChangeset = serde_json::from_str(json).unwrap();
+
+        assert_eq!(changeset.name, String::from("T1"));
+        assert_eq!(changeset.status, CIStatus::InMaintenance);
+        assert_eq!(changeset.created_at, None);
+        assert_eq!(changeset.r#type, None);
+        assert_eq!(changeset.owner, None);
+        assert_eq!(changeset.description, String::from(""));
     }
 }
