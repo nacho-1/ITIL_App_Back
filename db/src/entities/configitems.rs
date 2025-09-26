@@ -21,7 +21,7 @@ pub struct ConfigItem {
 }
 
 #[derive(Deserialize, Validate, Clone, ToSchema)]
-#[cfg_attr(feature = "test-helpers", derive(Serialize))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(Serialize))]
 pub struct ConfigItemChangeset {
     #[validate(length(min = 1, max = 255))]
     pub name: String,
@@ -38,6 +38,7 @@ pub struct ConfigItemChangeset {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
 #[schema(example = "active")]
 #[sqlx(type_name = "cistatus", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum CIStatus {
     Active,
     Inactive,
@@ -169,5 +170,31 @@ pub async fn delete(
     {
         Some(_) => Ok(()),
         None => Err(crate::Error::NoRecordFound),
+    }
+}
+
+#[cfg(test)]
+mod config_item_test {
+    use super::*;
+    //use serde_json::json;
+
+    #[test]
+    fn test_deserialize_changeset() {
+        let changeset = ConfigItemChangeset {
+            name: String::from("Testing Configuration Item"),
+            status: CIStatus::Active,
+            created_at: Some("2023-09-15T12:34:56Z".parse().unwrap()),
+            r#type: Some(String::from("Testing")),
+            owner: Some(String::from("Testing Area")),
+            description: String::from("This is a testing configuration item."),
+        };
+
+        let json = serde_json::to_string(&changeset).expect("Failed to serialize");
+
+        assert!(json.contains("\"name\":\"Testing Configuration Item\""));
+        assert!(json.contains("\"status\":\"active\""));
+        assert!(json.contains("\"created_at\":\"2023-09-15T12:34:56Z\""));
+        assert!(json.contains("\"status\":\"active\""));
+        assert!(json.contains("\"description\":\"This is a testing configuration item.\""));
     }
 }
