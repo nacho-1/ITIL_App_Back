@@ -4,6 +4,7 @@ use crate::{
     state::AppState,
 };
 use axum::Router;
+use tower_http::cors::{Any, CorsLayer};
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
@@ -22,7 +23,10 @@ pub fn init_routes(app_state: AppState) -> Router {
         .with_state(shared_app_state)
         .split_for_parts();
 
-    router.merge(SwaggerUi::new("/swagger-ui").url("/apidoc/openapi.json", api))
+    let cors = CorsLayer::new().allow_origin(Any);
+    router
+        .merge(SwaggerUi::new("/swagger-ui").url("/apidoc/openapi.json", api))
+        .layer(cors)
 }
 
 pub fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
