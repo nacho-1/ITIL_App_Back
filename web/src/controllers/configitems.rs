@@ -5,15 +5,15 @@ use tracing::info;
 use uuid::Uuid;
 
 #[axum::debug_handler]
-#[utoipa::path(post, 
-    path = "", 
+#[utoipa::path(post,
+    path = "",
     request_body(
         content = entities::configitems::ConfigItemChangeset,
         description = "Configuration Item to create in the database",
         content_type = "application/json",
     ), 
     responses(
-        (status = CREATED, 
+        (status = CREATED,
             body = entities::configitems::ConfigItem,
             description = "Configuration Item created successfully",
             content_type = "application/json"
@@ -85,15 +85,15 @@ pub async fn read_one(
 }
 
 #[axum::debug_handler]
-#[utoipa::path(put, 
-    path = "/{id}", 
+#[utoipa::path(put,
+    path = "/{id}",
     request_body(
         content = entities::configitems::ConfigItemChangeset,
         description = "Configuration Item data to update in the database",
         content_type = "application/json",
     ), 
     responses(
-        (status = OK, 
+        (status = OK,
             body = entities::configitems::ConfigItem,
             description = "Configuration Item updated successfully",
             content_type = "application/json"
@@ -121,9 +121,9 @@ pub async fn update(
 
 #[axum::debug_handler]
 #[utoipa::path(delete, 
-    path = "/{id}", 
+    path = "/{id}",
     responses(
-        (status = NO_CONTENT, 
+        (status = NO_CONTENT,
             description = "Configuration Item deleted successfully",
         ),
         (status = NOT_FOUND,
