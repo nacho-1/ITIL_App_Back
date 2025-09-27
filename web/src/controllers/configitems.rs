@@ -11,7 +11,7 @@ use uuid::Uuid;
         content = entities::configitems::ConfigItemChangeset,
         description = "Configuration Item to create in the database",
         content_type = "application/json",
-    ), 
+    ),
     responses(
         (status = CREATED,
             body = entities::configitems::ConfigItem,
@@ -24,7 +24,7 @@ use uuid::Uuid;
         (status = INTERNAL_SERVER_ERROR,
             description = "Database error"
         )
-    ), 
+    ),
     tag = apidoc::CONFIG_ITEMS_TAG
 )]
 pub async fn create(
@@ -91,7 +91,7 @@ pub async fn read_one(
         content = entities::configitems::ConfigItemChangeset,
         description = "Configuration Item data to update in the database",
         content_type = "application/json",
-    ), 
+    ),
     responses(
         (status = OK,
             body = entities::configitems::ConfigItem,
@@ -107,7 +107,7 @@ pub async fn read_one(
         (status = INTERNAL_SERVER_ERROR,
             description = "Database error"
         )
-    ), 
+    ),
     tag = apidoc::CONFIG_ITEMS_TAG
 )]
 pub async fn update(
@@ -120,7 +120,7 @@ pub async fn update(
 }
 
 #[axum::debug_handler]
-#[utoipa::path(delete, 
+#[utoipa::path(delete,
     path = "/{id}",
     responses(
         (status = NO_CONTENT,
@@ -132,7 +132,7 @@ pub async fn update(
         (status = INTERNAL_SERVER_ERROR,
             description = "Database error"
         )
-    ), 
+    ),
     tag = apidoc::CONFIG_ITEMS_TAG
 )]
 pub async fn delete(
