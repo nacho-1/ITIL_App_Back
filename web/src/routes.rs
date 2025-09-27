@@ -23,7 +23,7 @@ pub fn init_routes(app_state: AppState) -> Router {
         .with_state(shared_app_state)
         .split_for_parts();
 
-    let cors = CorsLayer::new().allow_origin(Any);
+    let cors = CorsLayer::new().allow_methods(Any).allow_origin(Any);
     router
         .merge(SwaggerUi::new("/swagger-ui").url("/apidoc/openapi.json", api))
         .layer(cors)
