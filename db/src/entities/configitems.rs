@@ -43,7 +43,7 @@ pub struct ConfigItemChangeset {
 pub enum CIStatus {
     Active,
     Inactive,
-    InMaintenance,
+    Maintenance,
     Testing,
     Retired,
 }
@@ -203,7 +203,7 @@ mod config_item_test {
         let json = r#"
         {
             "name": "T1",
-            "status": "inmaintenance",
+            "status": "maintenance",
             "created_at": "2023-09-15T12:34:56Z",
             "type": "Testing",
             "owner": "Test Area",
@@ -213,7 +213,7 @@ mod config_item_test {
         let changeset: ConfigItemChangeset = serde_json::from_str(json).unwrap();
 
         assert_eq!(changeset.name, String::from("T1"));
-        assert_eq!(changeset.status, CIStatus::InMaintenance);
+        assert_eq!(changeset.status, CIStatus::Maintenance);
         assert_eq!(
             changeset.created_at,
             Some("2023-09-15T12:34:56Z".parse().unwrap())
@@ -228,7 +228,7 @@ mod config_item_test {
         let json = r#"
         {
             "name": "T1",
-            "status": "inmaintenance",
+            "status": "maintenance",
             "created_at": null,
             "type": null,
             "description": ""
@@ -237,7 +237,7 @@ mod config_item_test {
         let changeset: ConfigItemChangeset = serde_json::from_str(json).unwrap();
 
         assert_eq!(changeset.name, String::from("T1"));
-        assert_eq!(changeset.status, CIStatus::InMaintenance);
+        assert_eq!(changeset.status, CIStatus::Maintenance);
         assert_eq!(changeset.created_at, None);
         assert_eq!(changeset.r#type, None);
         assert_eq!(changeset.owner, None);
