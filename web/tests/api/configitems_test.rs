@@ -24,7 +24,7 @@ fn create_basic_changeset() -> entities::configitems::ConfigItemChangeset {
 
     entities::configitems::ConfigItemChangeset {
         name,
-        status: entities::configitems::CIStatus::Active,
+        status: entities::configitems::CIStatus::Maintenance,
         created_at: Some("2023-09-15T12:34:56Z".parse().unwrap()),
         r#type: Some(type_content),
         owner: Some(owner_content),

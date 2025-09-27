@@ -1,4 +1,4 @@
-CREATE TYPE cistatus AS ENUM ('active', 'inactive', 'inmaintenance', 'testing', 'retired');
+CREATE TYPE cistatus AS ENUM ('active', 'inactive', 'maintenance', 'testing', 'retired');
 
 CREATE TABLE configitems (
 	id uuid PRIMARY KEY default gen_random_uuid(),
