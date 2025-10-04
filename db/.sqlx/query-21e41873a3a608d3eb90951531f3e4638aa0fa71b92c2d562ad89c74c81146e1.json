@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE incidents\n        SET title = $1, status = $2, created_at = COALESCE($3, created_at),\n            impact = $4, urgency = $5, owner = $6, description = $7 \n        WHERE id = $8\n        RETURNING id, created_at",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        {
+          "Custom": {
+            "name": "incident_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        {
+          "Custom": {
+            "name": "incident_impact",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "incident_urgency",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "21e41873a3a608d3eb90951531f3e4638aa0fa71b92c2d562ad89c74c81146e1"
+}

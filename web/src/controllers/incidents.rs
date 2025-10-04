@@ -8,14 +8,14 @@ use uuid::Uuid;
 #[utoipa::path(post,
     path = "",
     request_body(
-        content = entities::configitems::ConfigItemChangeset,
-        description = "Configuration Item to create in the database",
+        content = entities::incidents::IncidentChangeset,
+        description = "Incident to create in the database",
         content_type = "application/json",
     ),
     responses(
         (status = CREATED,
-            body = entities::configitems::ConfigItem,
-            description = "Configuration Item created successfully",
+            body = entities::incidents::Incident,
+            description = "Incident created successfully",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
@@ -25,14 +25,14 @@ use uuid::Uuid;
             description = "Database error"
         )
     ),
-    tag = apidoc::CONFIG_ITEMS_TAG
+    tag = apidoc::INCIDENTS_TAG
 )]
-pub async fn create_ci(
+pub async fn create_incident(
     State(app_state): State<SharedAppState>,
-    Json(configitem): Json<entities::configitems::ConfigItemChangeset>,
-) -> Result<(StatusCode, Json<entities::configitems::ConfigItem>), Error> {
-    let configitem = entities::configitems::create(configitem, &app_state.db_pool).await?;
-    Ok((StatusCode::CREATED, Json(configitem)))
+    Json(incident): Json<entities::incidents::IncidentChangeset>,
+) -> Result<(StatusCode, Json<entities::incidents::Incident>), Error> {
+    let incident = entities::incidents::create(incident, &app_state.db_pool).await?;
+    Ok((StatusCode::CREATED, Json(incident)))
 }
 
 #[axum::debug_handler]
@@ -40,23 +40,23 @@ pub async fn create_ci(
     path = "",
     responses(
         (status = OK,
-            body = Vec<entities::configitems::ConfigItem>,
-            description = "List of Configuration Items"
+            body = Vec<entities::incidents::Incident>,
+            description = "List of Incidents"
         ),
         (status = INTERNAL_SERVER_ERROR,
             description = "Database error"
         )
     ),
-    tag = apidoc::CONFIG_ITEMS_TAG
+    tag = apidoc::INCIDENTS_TAG
 )]
-pub async fn read_all_ci(
+pub async fn read_all_incidents(
     State(app_state): State<SharedAppState>,
-) -> Result<Json<Vec<entities::configitems::ConfigItem>>, Error> {
-    let configitems = entities::configitems::load_all(&app_state.db_pool).await?;
+) -> Result<Json<Vec<entities::incidents::Incident>>, Error> {
+    let incidents = entities::incidents::load_all(&app_state.db_pool).await?;
 
-    info!("responding with {:?}", configitems);
+    info!("responding with {:?}", incidents);
 
-    Ok(Json(configitems))
+    Ok(Json(incidents))
 }
 
 #[axum::debug_handler]
@@ -64,8 +64,8 @@ pub async fn read_all_ci(
     path = "/{id}",
     responses(
         (status = OK,
-            body = entities::configitems::ConfigItem,
-            description = "Configuration Item"
+            body = entities::incidents::Incident,
+            description = "Successful operation"
         ),
         (status = NOT_FOUND,
             description = "Record not found in database"
@@ -74,28 +74,28 @@ pub async fn read_all_ci(
             description = "Database error"
         )
     ),
-    tag = apidoc::CONFIG_ITEMS_TAG
+    tag = apidoc::INCIDENTS_TAG
 )]
-pub async fn read_one_ci(
+pub async fn read_one_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<entities::configitems::ConfigItem>, Error> {
-    let configitem = entities::configitems::load(id, &app_state.db_pool).await?;
-    Ok(Json(configitem))
+) -> Result<Json<entities::incidents::Incident>, Error> {
+    let incident = entities::incidents::load(id, &app_state.db_pool).await?;
+    Ok(Json(incident))
 }
 
 #[axum::debug_handler]
 #[utoipa::path(put,
     path = "/{id}",
     request_body(
-        content = entities::configitems::ConfigItemChangeset,
-        description = "Configuration Item data to update in the database",
+        content = entities::incidents::IncidentChangeset,
+        description = "Incident data to update in the database",
         content_type = "application/json",
     ),
     responses(
         (status = OK,
-            body = entities::configitems::ConfigItem,
-            description = "Configuration Item updated successfully",
+            body = entities::incidents::Incident,
+            description = "Incident updated successfully",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
@@ -108,15 +108,15 @@ pub async fn read_one_ci(
             description = "Database error"
         )
     ),
-    tag = apidoc::CONFIG_ITEMS_TAG
+    tag = apidoc::INCIDENTS_TAG
 )]
-pub async fn update_ci(
+pub async fn update_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-    Json(configitem): Json<entities::configitems::ConfigItemChangeset>,
-) -> Result<Json<entities::configitems::ConfigItem>, Error> {
-    let configitem = entities::configitems::update(id, configitem, &app_state.db_pool).await?;
-    Ok(Json(configitem))
+    Json(incident): Json<entities::incidents::IncidentChangeset>,
+) -> Result<Json<entities::incidents::Incident>, Error> {
+    let incident = entities::incidents::update(id, incident, &app_state.db_pool).await?;
+    Ok(Json(incident))
 }
 
 #[axum::debug_handler]
@@ -124,7 +124,7 @@ pub async fn update_ci(
     path = "/{id}",
     responses(
         (status = NO_CONTENT,
-            description = "Configuration Item deleted successfully",
+            description = "Incident deleted successfully",
         ),
         (status = NOT_FOUND,
             description = "Record not found in database"
@@ -133,12 +133,12 @@ pub async fn update_ci(
             description = "Database error"
         )
     ),
-    tag = apidoc::CONFIG_ITEMS_TAG
+    tag = apidoc::INCIDENTS_TAG
 )]
-pub async fn delete_ci(
+pub async fn delete_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, Error> {
-    entities::configitems::delete(id, &app_state.db_pool).await?;
+    entities::incidents::delete(id, &app_state.db_pool).await?;
     Ok(StatusCode::NO_CONTENT)
 }

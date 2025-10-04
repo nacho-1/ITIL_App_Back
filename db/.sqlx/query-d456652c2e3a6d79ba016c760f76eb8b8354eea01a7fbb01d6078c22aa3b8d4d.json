@@ -23,7 +23,7 @@
               "Enum": [
                 "active",
                 "inactive",
-                "inmaintenance",
+                "maintenance",
                 "testing",
                 "retired"
               ]

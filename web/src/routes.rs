@@ -1,6 +1,6 @@
 use crate::{
     apidoc::ApiDoc,
-    controllers::{configitems, health},
+    controllers::{configitems, health, incidents},
     state::AppState,
 };
 use axum::Router;
@@ -19,6 +19,7 @@ pub fn init_routes(app_state: AppState) -> Router {
     let shared_app_state = Arc::new(app_state);
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(health::health))
+        .nest("/api/incidents", incidents_router())
         .nest("/api/configitems", configitems_router())
         .with_state(shared_app_state)
         .split_for_parts();
@@ -29,12 +30,25 @@ pub fn init_routes(app_state: AppState) -> Router {
         .layer(cors)
 }
 
-pub fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
+fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
     OpenApiRouter::new()
-        .routes(routes!(configitems::create, configitems::read_all,))
+        .routes(routes!(configitems::create_ci, configitems::read_all_ci,))
         .routes(routes!(
-            configitems::read_one,
-            configitems::update,
-            configitems::delete,
+            configitems::read_one_ci,
+            configitems::update_ci,
+            configitems::delete_ci,
+        ))
+}
+
+fn incidents_router() -> OpenApiRouter<Arc<AppState>> {
+    OpenApiRouter::new()
+        .routes(routes!(
+            incidents::create_incident,
+            incidents::read_all_incidents,
+        ))
+        .routes(routes!(
+            incidents::read_one_incident,
+            incidents::update_incident,
+            incidents::delete_incident,
         ))
 }
