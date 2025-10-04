@@ -55,17 +55,24 @@ impl ToSchema for Incident {
 
 impl PartialSchema for Incident {
     fn schema() -> utoipa::openapi::RefOr<utoipa::openapi::schema::Schema> {
+        /// Helper struct for generating the schemas for [Incident].
+        ///
+        /// Because the schema should include the priority, which isn't an actual field,
+        /// I do this workaround.
         #[derive(ToSchema)]
         #[allow(dead_code)]
         struct IncidentSchema {
             pub id: Uuid,
+            #[schema(example = "Proxy Not Working")]
             pub title: String,
             pub status: IncidentStatus,
             pub created_at: DateTime<Utc>,
             pub impact: IncidentImpact,
             pub urgency: IncidentUrgency,
             pub priority: IncidentPrio,
+            #[schema(example = "Sales Department")]
             pub owner: Option<String>,
+            #[schema(example = "Proxy server not working. Stopped this morning.")]
             pub description: String,
         }
 
@@ -77,14 +84,17 @@ impl PartialSchema for Incident {
 #[cfg_attr(feature = "test-helpers", derive(Serialize))]
 pub struct IncidentChangeset {
     #[validate(length(min = 1, max = 255))]
+    #[schema(example = "Proxy Not Working")]
     pub title: String,
     pub status: IncidentStatus,
     pub created_at: Option<DateTime<Utc>>,
     pub impact: IncidentImpact,
     pub urgency: IncidentUrgency,
     #[validate(length(min = 1, max = 63))]
+    #[schema(example = "Sales Department")]
     pub owner: Option<String>,
     #[validate(length(max = 255))]
+    #[schema(example = "Proxy server not working. Stopped this morning.")]
     pub description: String,
 }
 

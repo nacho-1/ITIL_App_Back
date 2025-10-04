@@ -9,20 +9,20 @@ use uuid::Uuid;
     path = "",
     request_body(
         content = entities::incidents::IncidentChangeset,
-        description = "Incident to create in the database",
+        description = "Incident to create in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = CREATED,
             body = entities::incidents::Incident,
-            description = "Incident created successfully",
+            description = "Incident created successfully.",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
-            description = "Request body didn't pass validations"
+            description = "Request body didn't pass validations."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::INCIDENTS_TAG
@@ -41,10 +41,10 @@ pub async fn create_incident(
     responses(
         (status = OK,
             body = Vec<entities::incidents::Incident>,
-            description = "List of Incidents"
+            description = "List of Incidents."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::INCIDENTS_TAG
@@ -65,13 +65,13 @@ pub async fn read_all_incidents(
     responses(
         (status = OK,
             body = entities::incidents::Incident,
-            description = "Successful operation"
+            description = "OK"
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::INCIDENTS_TAG
@@ -89,23 +89,23 @@ pub async fn read_one_incident(
     path = "/{id}",
     request_body(
         content = entities::incidents::IncidentChangeset,
-        description = "Incident data to update in the database",
+        description = "Incident data to update in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = OK,
             body = entities::incidents::Incident,
-            description = "Incident updated successfully",
+            description = "Incident updated successfully.",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
-            description = "Request body didn't pass validations"
+            description = "Request body didn't pass validations."
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::INCIDENTS_TAG
@@ -124,13 +124,13 @@ pub async fn update_incident(
     path = "/{id}",
     responses(
         (status = NO_CONTENT,
-            description = "Incident deleted successfully",
+            description = "Incident deleted successfully.",
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::INCIDENTS_TAG

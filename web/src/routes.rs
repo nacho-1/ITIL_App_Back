@@ -30,6 +30,10 @@ pub fn init_routes(app_state: AppState) -> Router {
         .layer(cors)
 }
 
+// Important: Controllers must have different names even if they are in different modules.
+// Otherwise utoipa gets dizzy.
+// See https://github.com/juhaku/utoipa/issues/1298
+
 fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
     OpenApiRouter::new()
         .routes(routes!(configitems::create_ci, configitems::read_all_ci,))

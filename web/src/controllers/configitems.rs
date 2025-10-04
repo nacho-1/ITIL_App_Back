@@ -9,20 +9,20 @@ use uuid::Uuid;
     path = "",
     request_body(
         content = entities::configitems::ConfigItemChangeset,
-        description = "Configuration Item to create in the database",
+        description = "Configuration Item to create in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = CREATED,
             body = entities::configitems::ConfigItem,
-            description = "Configuration Item created successfully",
+            description = "Configuration Item created successfully.",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
-            description = "Request body didn't pass validations"
+            description = "Request body didn't pass validations."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::CONFIG_ITEMS_TAG
@@ -41,10 +41,10 @@ pub async fn create_ci(
     responses(
         (status = OK,
             body = Vec<entities::configitems::ConfigItem>,
-            description = "List of Configuration Items"
+            description = "List of Configuration Items."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::CONFIG_ITEMS_TAG
@@ -65,13 +65,13 @@ pub async fn read_all_ci(
     responses(
         (status = OK,
             body = entities::configitems::ConfigItem,
-            description = "Configuration Item"
+            description = "OK"
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::CONFIG_ITEMS_TAG
@@ -89,23 +89,23 @@ pub async fn read_one_ci(
     path = "/{id}",
     request_body(
         content = entities::configitems::ConfigItemChangeset,
-        description = "Configuration Item data to update in the database",
+        description = "Configuration Item data to update in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = OK,
             body = entities::configitems::ConfigItem,
-            description = "Configuration Item updated successfully",
+            description = "Configuration Item updated successfully.",
             content_type = "application/json"
         ),
         (status = UNPROCESSABLE_ENTITY,
-            description = "Request body didn't pass validations"
+            description = "Request body didn't pass validations."
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::CONFIG_ITEMS_TAG
@@ -124,13 +124,13 @@ pub async fn update_ci(
     path = "/{id}",
     responses(
         (status = NO_CONTENT,
-            description = "Configuration Item deleted successfully",
+            description = "Configuration Item deleted successfully.",
         ),
         (status = NOT_FOUND,
-            description = "Record not found in database"
+            description = "Record not found in database."
         ),
         (status = INTERNAL_SERVER_ERROR,
-            description = "Database error"
+            description = "Database error."
         )
     ),
     tag = apidoc::CONFIG_ITEMS_TAG

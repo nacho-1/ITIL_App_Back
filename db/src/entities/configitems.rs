@@ -12,11 +12,15 @@ use validator::Validate;
 #[derive(Serialize, Debug, Deserialize, ToSchema)]
 pub struct ConfigItem {
     pub id: Uuid,
+    #[schema(example = "IBM 5100")]
     pub name: String,
     pub status: CIStatus,
     pub created_at: DateTime<Utc>,
+    #[schema(example = "Workstation")]
     pub r#type: Option<String>,
+    #[schema(example = "IT Department")]
     pub owner: Option<String>,
+    #[schema(example = "Retro portable computer.")]
     pub description: String,
 }
 
@@ -24,14 +28,18 @@ pub struct ConfigItem {
 #[cfg_attr(any(feature = "test-helpers", test), derive(Serialize))]
 pub struct ConfigItemChangeset {
     #[validate(length(min = 1, max = 255))]
+    #[schema(example = "IBM 5100")]
     pub name: String,
     pub status: CIStatus,
     pub created_at: Option<DateTime<Utc>>,
     #[validate(length(min = 1, max = 31))]
+    #[schema(example = "Workstation")]
     pub r#type: Option<String>,
     #[validate(length(min = 1, max = 63))]
+    #[schema(example = "IT Department")]
     pub owner: Option<String>,
     #[validate(length(max = 255))]
+    #[schema(example = "Retro portable computer.")]
     pub description: String,
 }
 
