@@ -42,11 +42,23 @@ async fn test_create_invalid(context: &DbTestContext) {
         ..changeset.clone()
     });
     sets.push(entities::configitems::ConfigItemChangeset {
+        name: String::from(&"x".repeat(256)),
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
         r#type: Some(String::from("")),
         ..changeset.clone()
     });
     sets.push(entities::configitems::ConfigItemChangeset {
+        r#type: Some(String::from(&"x".repeat(32))),
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
         owner: Some(String::from("")),
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
+        owner: Some(String::from(&"x".repeat(64))),
         ..changeset.clone()
     });
 
@@ -87,6 +99,52 @@ async fn test_create_success(context: &DbTestContext) {
         .unwrap();
     assert_that!(configitems, len(eq(1)));
     assert_that!(configitems.first().unwrap().name, eq(&changeset.name));
+}
+
+#[db_test]
+async fn test_status(context: &DbTestContext) {
+    let changeset = create_basic_changeset();
+    let mut sets = Vec::new();
+    sets.push(entities::configitems::ConfigItemChangeset {
+        status: entities::configitems::CIStatus::Testing,
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
+        status: entities::configitems::CIStatus::Active,
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
+        status: entities::configitems::CIStatus::Inactive,
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
+        status: entities::configitems::CIStatus::Retired,
+        ..changeset.clone()
+    });
+    sets.push(entities::configitems::ConfigItemChangeset {
+        status: entities::configitems::CIStatus::Maintenance,
+        ..changeset.clone()
+    });
+
+    for set in sets {
+        let payload = json!(set);
+
+        let response = context
+            .app
+            .request("/api/configitems")
+            .method(Method::POST)
+            .body(Body::from(payload.to_string()))
+            .header(http::header::CONTENT_TYPE, "application/json")
+            .send()
+            .await;
+
+        assert_that!(response.status(), eq(StatusCode::CREATED));
+        let ci = response
+            .into_body()
+            .into_json::<entities::configitems::ConfigItem>()
+            .await;
+        assert_that!(ci.status, eq(set.status));
+    }
 }
 
 #[db_test]

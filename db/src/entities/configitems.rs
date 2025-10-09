@@ -47,7 +47,7 @@ pub struct ConfigItemChangeset {
 #[schema(example = "active")]
 #[sqlx(type_name = "cistatus", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum CIStatus {
     Active,
     Inactive,

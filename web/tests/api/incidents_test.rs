@@ -85,6 +85,120 @@ async fn test_create_success(context: &DbTestContext) {
 }
 
 #[db_test]
+async fn test_status(context: &DbTestContext) {
+    let changeset = create_basic_changeset();
+    let mut sets = Vec::new();
+    sets.push(entities::incidents::IncidentChangeset {
+        status: entities::incidents::IncidentStatus::InProgress,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        status: entities::incidents::IncidentStatus::Open,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        status: entities::incidents::IncidentStatus::Closed,
+        ..changeset.clone()
+    });
+
+    for set in sets {
+        let payload = json!(set);
+
+        let response = context
+            .app
+            .request("/api/incidents")
+            .method(Method::POST)
+            .body(Body::from(payload.to_string()))
+            .header(http::header::CONTENT_TYPE, "application/json")
+            .send()
+            .await;
+
+        assert_that!(response.status(), eq(StatusCode::CREATED));
+        let incident = response
+            .into_body()
+            .into_json::<entities::incidents::Incident>()
+            .await;
+        assert_that!(incident.status, eq(set.status));
+    }
+}
+
+#[db_test]
+async fn test_impact(context: &DbTestContext) {
+    let changeset = create_basic_changeset();
+    let mut sets = Vec::new();
+    sets.push(entities::incidents::IncidentChangeset {
+        impact: entities::incidents::IncidentImpact::High,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        impact: entities::incidents::IncidentImpact::Medium,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        impact: entities::incidents::IncidentImpact::Low,
+        ..changeset.clone()
+    });
+
+    for set in sets {
+        let payload = json!(set);
+
+        let response = context
+            .app
+            .request("/api/incidents")
+            .method(Method::POST)
+            .body(Body::from(payload.to_string()))
+            .header(http::header::CONTENT_TYPE, "application/json")
+            .send()
+            .await;
+
+        assert_that!(response.status(), eq(StatusCode::CREATED));
+        let incident = response
+            .into_body()
+            .into_json::<entities::incidents::Incident>()
+            .await;
+        assert_that!(incident.impact, eq(set.impact));
+    }
+}
+
+#[db_test]
+async fn test_urgency(context: &DbTestContext) {
+    let changeset = create_basic_changeset();
+    let mut sets = Vec::new();
+    sets.push(entities::incidents::IncidentChangeset {
+        urgency: entities::incidents::IncidentUrgency::High,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        urgency: entities::incidents::IncidentUrgency::Medium,
+        ..changeset.clone()
+    });
+    sets.push(entities::incidents::IncidentChangeset {
+        urgency: entities::incidents::IncidentUrgency::Low,
+        ..changeset.clone()
+    });
+
+    for set in sets {
+        let payload = json!(set);
+
+        let response = context
+            .app
+            .request("/api/incidents")
+            .method(Method::POST)
+            .body(Body::from(payload.to_string()))
+            .header(http::header::CONTENT_TYPE, "application/json")
+            .send()
+            .await;
+
+        assert_that!(response.status(), eq(StatusCode::CREATED));
+        let incident = response
+            .into_body()
+            .into_json::<entities::incidents::Incident>()
+            .await;
+        assert_that!(incident.urgency, eq(set.urgency));
+    }
+}
+
+#[db_test]
 async fn test_read_all(context: &DbTestContext) {
     let changeset = create_basic_changeset();
     entities::incidents::create(changeset.clone(), &context.db_pool)

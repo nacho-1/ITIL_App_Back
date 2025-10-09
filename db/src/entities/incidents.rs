@@ -102,7 +102,7 @@ pub struct IncidentChangeset {
 #[schema(example = "open")]
 #[sqlx(type_name = "incident_status", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentStatus {
     Open,
     InProgress,
@@ -113,7 +113,7 @@ pub enum IncidentStatus {
 #[schema(example = "high")]
 #[sqlx(type_name = "incident_impact", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentImpact {
     High,
     Medium,
@@ -134,7 +134,7 @@ impl IncidentImpact {
 #[schema(example = "high")]
 #[sqlx(type_name = "incident_urgency", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentUrgency {
     High,
     Medium,
@@ -154,7 +154,7 @@ impl IncidentUrgency {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
 #[schema(example = "critical")]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(test, derive(PartialEq))]
+#[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentPrio {
     Critical,
     High,
@@ -312,5 +312,93 @@ pub async fn delete(
     {
         Some(_) => Ok(()),
         None => Err(crate::Error::NoRecordFound),
+    }
+}
+
+#[cfg(test)]
+mod incidents_tests {
+    use super::*;
+    use uuid::uuid;
+
+    fn build_testing_incident() -> Incident {
+        Incident {
+            title: String::from("Test Incident"),
+            id: uuid!("67e55044-10b1-426f-9247-bb680e5fe0c8"),
+            status: IncidentStatus::Open,
+            created_at: Utc::now(),
+            impact: IncidentImpact::Low,
+            urgency: IncidentUrgency::Low,
+            owner: Some(String::from("Me")),
+            description: String::from(""),
+        }
+    }
+
+    #[test]
+    fn test_low_priority() {
+        let mut incidents = Vec::new();
+        incidents.push(build_testing_incident());
+        incidents.push(Incident {
+            impact: IncidentImpact::Medium,
+            ..build_testing_incident()
+        });
+        incidents.push(Incident {
+            urgency: IncidentUrgency::Medium,
+            ..build_testing_incident()
+        });
+
+        for incident in incidents {
+            assert_eq!(incident.priority(), IncidentPrio::Low);
+        }
+    }
+
+    #[test]
+    fn test_moderate_priority() {
+        let mut incidents = Vec::new();
+        incidents.push(Incident {
+            impact: IncidentImpact::High,
+            ..build_testing_incident()
+        });
+        incidents.push(Incident {
+            urgency: IncidentUrgency::High,
+            ..build_testing_incident()
+        });
+        incidents.push(Incident {
+            impact: IncidentImpact::Medium,
+            urgency: IncidentUrgency::Medium,
+            ..build_testing_incident()
+        });
+
+        for incident in incidents {
+            assert_eq!(incident.priority(), IncidentPrio::Moderate);
+        }
+    }
+
+    #[test]
+    fn test_high_priority() {
+        let mut incidents = Vec::new();
+        incidents.push(Incident {
+            impact: IncidentImpact::High,
+            urgency: IncidentUrgency::Medium,
+            ..build_testing_incident()
+        });
+        incidents.push(Incident {
+            impact: IncidentImpact::Medium,
+            urgency: IncidentUrgency::High,
+            ..build_testing_incident()
+        });
+
+        for incident in incidents {
+            assert_eq!(incident.priority(), IncidentPrio::High);
+        }
+    }
+
+    #[test]
+    fn test_critical_priority() {
+        let incident = Incident {
+            impact: IncidentImpact::High,
+            urgency: IncidentUrgency::High,
+            ..build_testing_incident()
+        };
+        assert_eq!(incident.priority(), IncidentPrio::Critical);
     }
 }
