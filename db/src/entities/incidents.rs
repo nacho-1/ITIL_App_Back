@@ -10,6 +10,9 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
+/// Module for handling relations between Configuration Items and Incidents.
+pub mod ci_relations;
+
 #[derive(Debug, Deserialize)]
 pub struct Incident {
     pub id: Uuid,

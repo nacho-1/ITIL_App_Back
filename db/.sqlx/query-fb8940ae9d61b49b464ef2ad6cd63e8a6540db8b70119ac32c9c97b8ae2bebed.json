@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE incidents_ci_relations\n        SET description = $1\n        WHERE incident_id = $2\n        AND ci_id = $3\n        RETURNING ci_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "ci_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "fb8940ae9d61b49b464ef2ad6cd63e8a6540db8b70119ac32c9c97b8ae2bebed"
+}

@@ -39,7 +39,7 @@ pub async fn transaction(
 /// Errors that can occur as a result of a data layer operation.
 #[derive(Error, Debug)]
 pub enum Error {
-    /// General database error, e.g. communicating with the database failed
+    /// General database error, e.g. communicating with the database failed.
     #[error("database query failed")]
     DbError(#[from] sqlx::Error),
     /// No record was found, e.g. when loading a record by ID. This variant is different from
@@ -51,6 +51,9 @@ pub enum Error {
     #[error("validation failed")]
     /// An invalid changeset was passed to a writing operation such as creating or updating a record.
     ValidationError(#[from] validator::ValidationErrors),
+    /// Request violated database constraints.
+    #[error("constraint violation")]
+    ConstraintError,
 }
 
 /// Creates a connection pool to the database specified in the passed [`itil-back-config::DatabaseConfig`]

@@ -1,6 +1,9 @@
 use crate::{
     apidoc::ApiDoc,
-    controllers::{configitems, health, incidents},
+    controllers::{
+        configitems, health,
+        incidents::{self, ci_relations},
+    },
     state::AppState,
 };
 use axum::Router;
@@ -54,5 +57,13 @@ fn incidents_router() -> OpenApiRouter<Arc<AppState>> {
             incidents::read_one_incident,
             incidents::update_incident,
             incidents::delete_incident,
+        ))
+        .routes(routes!(
+            ci_relations::create_incident_ci_relation,
+            ci_relations::read_all_incident_ci_relations,
+        ))
+        .routes(routes!(
+            ci_relations::update_incident_ci_relation,
+            ci_relations::delete_incident_ci_relation,
         ))
 }

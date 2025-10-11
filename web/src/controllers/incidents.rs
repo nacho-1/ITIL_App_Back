@@ -4,6 +4,9 @@ use itil_back_db::entities;
 use tracing::info;
 use uuid::Uuid;
 
+/// Controllers for Incident-CI relations.
+pub mod ci_relations;
+
 #[axum::debug_handler]
 #[utoipa::path(post,
     path = "",

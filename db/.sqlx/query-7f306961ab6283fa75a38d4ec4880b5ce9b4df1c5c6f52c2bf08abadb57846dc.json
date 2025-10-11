@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO incidents_ci_relations (incident_id, ci_id, description)\n        VALUES ($1, $2, $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7f306961ab6283fa75a38d4ec4880b5ce9b4df1c5c6f52c2bf08abadb57846dc"
+}

@@ -20,6 +20,9 @@ impl IntoResponse for Error {
             Error::Database(itil_back_db::Error::NoRecordFound) => {
                 StatusCode::NOT_FOUND.into_response()
             }
+            Error::Database(itil_back_db::Error::ConstraintError) => {
+                StatusCode::UNPROCESSABLE_ENTITY.into_response()
+            }
             Error::Database(itil_back_db::Error::ValidationError(e)) => {
                 validation_error(e).into_response()
             }
