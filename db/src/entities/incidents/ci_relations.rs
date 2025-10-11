@@ -81,8 +81,8 @@ pub async fn create(
 
     tx.commit().await?;
     Ok(IncidentCIRelation {
-        incident_id: incident_id,
-        ci_id: ci_id,
+        incident_id,
+        ci_id,
         description: String::from(""),
     })
 }
