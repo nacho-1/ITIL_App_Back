@@ -16,7 +16,7 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
+        "Text",
         {
           "Custom": {
             "name": "incident_status",
@@ -54,8 +54,8 @@
             }
           }
         },
-        "Varchar",
-        "Varchar",
+        "Text",
+        "Text",
         "Uuid"
       ]
     },

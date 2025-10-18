@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO problems (title, status, detection_timedate,\n            description, causes, workarounds, resolutions) \n        VALUES ($1, $2, $3, $4, $5, $6, $7) \n        RETURNING id, status as \"status: ProblemStatus\", detection_timedate",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "status: ProblemStatus",
+        "type_info": {
+          "Custom": {
+            "name": "problem_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "knownerror",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "detection_timedate",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "problem_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "knownerror",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "762d0b937c75dcee3c7d58073844a9fef607a5ad4f64abe3f7341fc857c46b49"
+}

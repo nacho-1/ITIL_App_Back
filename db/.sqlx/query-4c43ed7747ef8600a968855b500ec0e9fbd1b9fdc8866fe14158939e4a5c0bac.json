@@ -16,7 +16,7 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
+        "Text",
         {
           "Custom": {
             "name": "cistatus",
@@ -32,9 +32,9 @@
           }
         },
         "Timestamptz",
-        "Varchar",
-        "Varchar",
-        "Varchar"
+        "Text",
+        "Text",
+        "Text"
       ]
     },
     "nullable": [

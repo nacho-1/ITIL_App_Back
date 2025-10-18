@@ -11,7 +11,7 @@
       {
         "ordinal": 1,
         "name": "title",
-        "type_info": "Varchar"
+        "type_info": "Text"
       },
       {
         "ordinal": 2,
@@ -69,12 +69,12 @@
       {
         "ordinal": 6,
         "name": "owner",
-        "type_info": "Varchar"
+        "type_info": "Text"
       },
       {
         "ordinal": 7,
         "name": "description",
-        "type_info": "Varchar"
+        "type_info": "Text"
       }
     ],
     "parameters": {

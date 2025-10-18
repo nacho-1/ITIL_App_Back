@@ -1,0 +1,97 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE problems\n        SET title = COALESCE($1, title), status = COALESCE($2, status),\n            detection_timedate = COALESCE($3, detection_timedate),\n            description = COALESCE($4, description), causes = COALESCE($5, causes),\n            workarounds = CASE\n                WHEN $6 THEN workarounds\n                ELSE $7\n            END,\n            resolutions = CASE\n                WHEN $8 THEN resolutions\n                ELSE $9\n            END\n        WHERE id = $10\n        RETURNING id, title, status as \"status: ProblemStatus\", detection_timedate,\n            description, causes, workarounds, resolutions",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: ProblemStatus",
+        "type_info": {
+          "Custom": {
+            "name": "problem_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "knownerror",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "detection_timedate",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "causes",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "workarounds",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "resolutions",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "problem_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "knownerror",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Bool",
+        "Text",
+        "Bool",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "a8b35dcaa137708be9334acc72cda0c3c6659f5f08f74148bf5e0cafd228a21c"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, name, status as \"status: CIStatus\", created_at, type, owner, description \n        FROM configitems",
+  "query": "\n        SELECT id, title, status as \"status: ProblemStatus\", detection_timedate,\n            description, causes, workarounds, resolutions\n        FROM problems\n        WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -10,22 +10,21 @@
       },
       {
         "ordinal": 1,
-        "name": "name",
+        "name": "title",
         "type_info": "Text"
       },
       {
         "ordinal": 2,
-        "name": "status: CIStatus",
+        "name": "status: ProblemStatus",
         "type_info": {
           "Custom": {
-            "name": "cistatus",
+            "name": "problem_status",
             "kind": {
               "Enum": [
-                "active",
-                "inactive",
-                "maintenance",
-                "testing",
-                "retired"
+                "open",
+                "knownerror",
+                "resolved",
+                "closed"
               ]
             }
           }
@@ -33,37 +32,45 @@
       },
       {
         "ordinal": 3,
-        "name": "created_at",
+        "name": "detection_timedate",
         "type_info": "Timestamptz"
       },
       {
         "ordinal": 4,
-        "name": "type",
+        "name": "description",
         "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "owner",
+        "name": "causes",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
-        "name": "description",
+        "name": "workarounds",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "resolutions",
         "type_info": "Text"
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
       false,
       false,
       false,
+      false,
+      false,
       true,
-      true,
-      false
+      true
     ]
   },
-  "hash": "61c006ff7e98587524131ad60db4063f58f2c8ffa178b546e26cca53fffa6b6a"
+  "hash": "fde63636978bbc27b95e6996ec4a3094506c3f45959bf1bff7f228bb5d56c354"
 }
