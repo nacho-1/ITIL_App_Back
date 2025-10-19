@@ -3,6 +3,7 @@ use crate::{
     controllers::{
         configitems, health,
         incidents::{self, ci_relations},
+        problems,
     },
     state::AppState,
 };
@@ -24,6 +25,7 @@ pub fn init_routes(app_state: AppState) -> Router {
         .routes(routes!(health::health))
         .nest("/api/incidents", incidents_router())
         .nest("/api/configitems", configitems_router())
+        .nest("/api/problems", problems_router())
         .with_state(shared_app_state)
         .split_for_parts();
 
@@ -65,5 +67,18 @@ fn incidents_router() -> OpenApiRouter<Arc<AppState>> {
         .routes(routes!(
             ci_relations::update_incident_ci_relation,
             ci_relations::delete_incident_ci_relation,
+        ))
+}
+
+fn problems_router() -> OpenApiRouter<Arc<AppState>> {
+    OpenApiRouter::new()
+        .routes(routes!(
+            problems::create_problem,
+            problems::read_all_problems,
+        ))
+        .routes(routes!(
+            problems::read_one_problem,
+            problems::update_problem,
+            problems::delete_problem,
         ))
 }

@@ -7,8 +7,10 @@ use thiserror::Error;
 
 pub use sqlx::postgres::PgPool as DbPool;
 
-/// Entity definitions and related functions
+/// Entity definitions and related functions.
 pub mod entities;
+/// Helper functions and types for entities.
+pub mod entity_helpers;
 
 /// Starts a new database transaction.
 ///
