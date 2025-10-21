@@ -231,7 +231,7 @@ pub async fn create(
     let record = sqlx::query!(
         "
         INSERT INTO incidents (title, status, created_at, impact, urgency, owner, description) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7) 
         RETURNING id, created_at",
         incident.title,
         incident.status as IncidentStatus,

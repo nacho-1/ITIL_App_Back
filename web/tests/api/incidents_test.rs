@@ -4,7 +4,7 @@ use axum::{
 };
 use googletest::prelude::*;
 use hyper::StatusCode;
-use itil_back_db::entities;
+use itil_back_db::entities::{self, incidents::IncidentChangeset};
 use itil_back_macros::db_test;
 use itil_back_web::test_helpers::{BodyExt, DbTestContext, RouterExt};
 use serde_json::json;
@@ -82,6 +82,35 @@ async fn test_create_success(context: &DbTestContext) {
         .unwrap();
     assert_that!(incidents, len(eq(1)));
     assert_that!(incidents.first().unwrap().title, eq(&changeset.title));
+}
+
+#[db_test]
+async fn test_create_border_success(context: &DbTestContext) {
+    let changeset = create_basic_changeset();
+    let mut sets = Vec::new();
+    sets.push(IncidentChangeset {
+        title: String::from("x"),
+        ..changeset.clone()
+    });
+    sets.push(IncidentChangeset {
+        created_at: None,
+        ..changeset.clone()
+    });
+
+    for set in sets {
+        let payload = json!(set);
+
+        let response = context
+            .app
+            .request("/api/incidents")
+            .method(Method::POST)
+            .body(Body::from(payload.to_string()))
+            .header(http::header::CONTENT_TYPE, "application/json")
+            .send()
+            .await;
+
+        assert_that!(response.status(), eq(StatusCode::CREATED));
+    }
 }
 
 #[db_test]

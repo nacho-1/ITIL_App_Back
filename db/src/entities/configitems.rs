@@ -100,7 +100,7 @@ pub async fn create(
     let record = sqlx::query!(
         "
         INSERT INTO configitems (name, status, created_at, type, owner, description) 
-        VALUES ($1, $2, $3, $4, $5, $6) 
+        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6) 
         RETURNING id, created_at",
         configitem.name,
         configitem.status as CIStatus,
