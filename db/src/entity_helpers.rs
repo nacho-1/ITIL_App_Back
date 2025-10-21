@@ -23,10 +23,7 @@ impl<T: Clone> PatchField<T> {
     }
 
     pub fn leave_unchanged(&self) -> bool {
-        match self {
-            PatchField::Missing => true,
-            _ => false,
-        }
+        matches!(self, PatchField::Missing)
     }
 }
 
