@@ -327,9 +327,43 @@ async fn test_update_nothing(context: &DbTestContext) {
 
     let problem_after: Problem = response.into_body().into_json::<Problem>().await;
     assert_that!(problem_after.title, eq(&problem.title));
+    assert!(problem_after.workarounds.is_some());
 
     let problem_after = problems::load(problem.id, &context.db_pool).await.unwrap();
     assert_that!(problem_after.title, eq(&problem.title));
+}
+
+#[db_test]
+async fn test_update_set_nulls(context: &DbTestContext) {
+    let problem_createset = create_basic_createset();
+    let problem = problems::create(problem_createset.clone(), &context.db_pool)
+        .await
+        .unwrap();
+    assert!(problem.workarounds.is_some());
+    assert!(problem.resolutions.is_some());
+
+    let problem_updateset = ProblemUpdateset {
+        workarounds: PatchField::Null,
+        resolutions: PatchField::Null,
+        ..create_basic_updateset()
+    };
+    let payload = json!(problem_updateset);
+
+    let response = context
+        .app
+        .request(&format!("/api/problems/{}", problem.id))
+        .method(Method::PUT)
+        .body(Body::from(payload.to_string()))
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .send()
+        .await;
+
+    assert_that!(response.status(), eq(StatusCode::OK));
+
+    let problem_after: Problem = response.into_body().into_json::<Problem>().await;
+    assert_that!(problem_after.title, eq(&problem.title));
+    assert!(problem_after.workarounds.is_none());
+    assert!(problem_after.resolutions.is_none());
 }
 
 #[db_test]

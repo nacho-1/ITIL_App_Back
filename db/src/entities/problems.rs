@@ -13,12 +13,19 @@ use validator::Validate;
 #[cfg_attr(any(feature = "test-helpers", test), derive(Deserialize))]
 pub struct Problem {
     pub id: Uuid,
+    #[schema(example = "Low Bandwidth in Office")]
     pub title: String,
     pub status: ProblemStatus,
     pub detection_timedate: DateTime<Utc>,
+    #[schema(
+        example = "Bandwidth doesn't go above 1Mb/s on devices connected to the main office network."
+    )]
     pub description: String,
+    #[schema(example = "Router is misconfigured and doesn't do hardware offloading.")]
     pub causes: String,
+    #[schema(example = "docs.local/workarounds/003.pdf")]
     pub workarounds: Option<String>,
+    #[schema(example = "docs.local/resolutions/002.pdf")]
     pub resolutions: Option<String>,
 }
 
@@ -76,9 +83,19 @@ pub struct ProblemUpdateset {
     pub causes: Option<String>,
     #[schema(example = "docs.local/workarounds/003.pdf")]
     #[validate(length(max = 1024))]
+    #[serde(default)]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "PatchField::leave_unchanged")
+    )]
     pub workarounds: PatchField<String>,
     #[schema(example = "docs.local/resolutions/002.pdf")]
     #[validate(length(max = 1024))]
+    #[serde(default)]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "PatchField::leave_unchanged")
+    )]
     pub resolutions: PatchField<String>,
 }
 
@@ -174,16 +191,16 @@ pub async fn update(
         WHERE id = $10
         RETURNING id, title, status as \"status: ProblemStatus\", detection_timedate,
             description, causes, workarounds, resolutions",
-        problem.title,                           // 1
-        problem.status as Option<ProblemStatus>, // 2
-        problem.detection_timedate,              // 3
-        problem.description,                     // 4
-        problem.causes,                          // 5
-        problem.workarounds.leave_unchanged(),   // 6
-        problem.workarounds.as_option(),         // 7
-        problem.resolutions.leave_unchanged(),   // 8
-        problem.resolutions.as_option(),         // 9
-        id,                                      // 10
+        problem.title,                                     // 1
+        problem.status as Option<ProblemStatus>,           // 2
+        problem.detection_timedate,                        // 3
+        problem.description,                               // 4
+        problem.causes,                                    // 5
+        problem.workarounds.leave_unchanged(),             // 6
+        Into::<Option<String>>::into(problem.workarounds), // 7
+        problem.resolutions.leave_unchanged(),             // 8
+        Into::<Option<String>>::into(problem.resolutions), // 9
+        id,                                                // 10
     )
     .fetch_optional(executor)
     .await
