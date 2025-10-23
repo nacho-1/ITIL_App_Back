@@ -7,7 +7,6 @@ use hyper::StatusCode;
 use itil_back_db::entities::problems::{
     self, Problem, ProblemCreateset, ProblemStatus, ProblemUpdateset,
 };
-use itil_back_db::entity_helpers::PatchField;
 use itil_back_macros::db_test;
 use itil_back_web::test_helpers::{BodyExt, DbTestContext, RouterExt};
 use serde_json::json;
@@ -32,8 +31,8 @@ fn create_basic_updateset() -> ProblemUpdateset {
         detection_timedate: Some("2023-09-15T12:34:56Z".parse().unwrap()),
         description: Some(String::from("This is a fake problem made for testing.")),
         causes: Some(String::from("I need to test this.")),
-        workarounds: PatchField::Value(String::from("docs.local/workarounds/testing.pdf")),
-        resolutions: PatchField::Value(String::from("docs.local/resolutions/testing.pdf")),
+        workarounds: Some(Some(String::from("docs.local/workarounds/testing.pdf"))),
+        resolutions: Some(Some(String::from("docs.local/resolutions/testing.pdf"))),
     }
 }
 
@@ -309,8 +308,8 @@ async fn test_update_nothing(context: &DbTestContext) {
         detection_timedate: None,
         description: None,
         causes: None,
-        workarounds: PatchField::Missing,
-        resolutions: PatchField::Missing,
+        workarounds: None,
+        resolutions: None,
     };
     let payload = json!(problem_updateset);
 
@@ -343,8 +342,8 @@ async fn test_update_set_nulls(context: &DbTestContext) {
     assert!(problem.resolutions.is_some());
 
     let problem_updateset = ProblemUpdateset {
-        workarounds: PatchField::Null,
-        resolutions: PatchField::Null,
+        workarounds: Some(None),
+        resolutions: Some(None),
         ..create_basic_updateset()
     };
     let payload = json!(problem_updateset);

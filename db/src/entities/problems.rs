@@ -1,4 +1,3 @@
-use crate::entity_helpers::PatchField;
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::types::chrono::DateTime;
@@ -83,20 +82,20 @@ pub struct ProblemUpdateset {
     pub causes: Option<String>,
     #[schema(example = "docs.local/workarounds/003.pdf")]
     #[validate(length(max = 1024))]
-    #[serde(default)]
+    #[serde(default, with = "::serde_with::rust::double_option")]
     #[cfg_attr(
         any(feature = "test-helpers", test),
-        serde(skip_serializing_if = "PatchField::leave_unchanged")
+        serde(skip_serializing_if = "Option::is_none")
     )]
-    pub workarounds: PatchField<String>,
+    pub workarounds: Option<Option<String>>,
     #[schema(example = "docs.local/resolutions/002.pdf")]
     #[validate(length(max = 1024))]
-    #[serde(default)]
+    #[serde(default, with = "::serde_with::rust::double_option")]
     #[cfg_attr(
         any(feature = "test-helpers", test),
-        serde(skip_serializing_if = "PatchField::leave_unchanged")
+        serde(skip_serializing_if = "Option::is_none")
     )]
-    pub resolutions: PatchField<String>,
+    pub resolutions: Option<Option<String>>,
 }
 
 pub async fn load_all(
@@ -191,16 +190,16 @@ pub async fn update(
         WHERE id = $10
         RETURNING id, title, status as \"status: ProblemStatus\", detection_timedate,
             description, causes, workarounds, resolutions",
-        problem.title,                                     // 1
-        problem.status as Option<ProblemStatus>,           // 2
-        problem.detection_timedate,                        // 3
-        problem.description,                               // 4
-        problem.causes,                                    // 5
-        problem.workarounds.leave_unchanged(),             // 6
-        Into::<Option<String>>::into(problem.workarounds), // 7
-        problem.resolutions.leave_unchanged(),             // 8
-        Into::<Option<String>>::into(problem.resolutions), // 9
-        id,                                                // 10
+        problem.title,                           // 1
+        problem.status as Option<ProblemStatus>, // 2
+        problem.detection_timedate,              // 3
+        problem.description,                     // 4
+        problem.causes,                          // 5
+        problem.workarounds.is_none(),           // 6
+        problem.workarounds.unwrap_or(None),     // 7
+        problem.resolutions.is_none(),           // 8
+        problem.resolutions.unwrap_or(None),     // 9
+        id,                                      // 10
     )
     .fetch_optional(executor)
     .await
