@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, name, status as \"status: CIStatus\", created_at, type, owner, description \n        FROM configitems",
+  "query": "\n        SELECT id, name, status as \"status: CIStatus\", created_at, type, owner, description\n        FROM configitems",
   "describe": {
     "columns": [
       {
@@ -65,5 +65,5 @@
       false
     ]
   },
-  "hash": "61c006ff7e98587524131ad60db4063f58f2c8ffa178b546e26cca53fffa6b6a"
+  "hash": "320b0d6578c1557d2e553c2571928f44c3fcbcdce9e6d92aa2c573f683514e33"
 }

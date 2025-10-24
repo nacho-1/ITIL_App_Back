@@ -1,6 +1,8 @@
 use crate::{apidoc, error::Error, state::SharedAppState};
 use axum::{extract::Path, extract::State, http::StatusCode, Json};
-use itil_back_db::entities;
+use itil_back_db::entities::configitems::{
+    self, ConfigItem, ConfigItemCreateset, ConfigItemUpdateset,
+};
 use tracing::info;
 use uuid::Uuid;
 
@@ -8,13 +10,13 @@ use uuid::Uuid;
 #[utoipa::path(post,
     path = "",
     request_body(
-        content = entities::configitems::ConfigItemChangeset,
+        content = ConfigItemCreateset,
         description = "Configuration Item to create in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = CREATED,
-            body = entities::configitems::ConfigItem,
+            body = ConfigItem,
             description = "Configuration Item created successfully.",
             content_type = "application/json"
         ),
@@ -29,9 +31,9 @@ use uuid::Uuid;
 )]
 pub async fn create_ci(
     State(app_state): State<SharedAppState>,
-    Json(configitem): Json<entities::configitems::ConfigItemChangeset>,
-) -> Result<(StatusCode, Json<entities::configitems::ConfigItem>), Error> {
-    let configitem = entities::configitems::create(configitem, &app_state.db_pool).await?;
+    Json(configitem): Json<ConfigItemCreateset>,
+) -> Result<(StatusCode, Json<ConfigItem>), Error> {
+    let configitem = configitems::create(configitem, &app_state.db_pool).await?;
     Ok((StatusCode::CREATED, Json(configitem)))
 }
 
@@ -40,7 +42,7 @@ pub async fn create_ci(
     path = "",
     responses(
         (status = OK,
-            body = Vec<entities::configitems::ConfigItem>,
+            body = Vec<ConfigItem>,
             description = "List of Configuration Items."
         ),
         (status = INTERNAL_SERVER_ERROR,
@@ -51,8 +53,8 @@ pub async fn create_ci(
 )]
 pub async fn read_all_ci(
     State(app_state): State<SharedAppState>,
-) -> Result<Json<Vec<entities::configitems::ConfigItem>>, Error> {
-    let configitems = entities::configitems::load_all(&app_state.db_pool).await?;
+) -> Result<Json<Vec<ConfigItem>>, Error> {
+    let configitems = configitems::load_all(&app_state.db_pool).await?;
 
     info!("responding with {:?}", configitems);
 
@@ -64,7 +66,7 @@ pub async fn read_all_ci(
     path = "/{id}",
     responses(
         (status = OK,
-            body = entities::configitems::ConfigItem,
+            body = ConfigItem,
             description = "OK"
         ),
         (status = NOT_FOUND,
@@ -79,8 +81,8 @@ pub async fn read_all_ci(
 pub async fn read_one_ci(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<entities::configitems::ConfigItem>, Error> {
-    let configitem = entities::configitems::load(id, &app_state.db_pool).await?;
+) -> Result<Json<ConfigItem>, Error> {
+    let configitem = configitems::load(id, &app_state.db_pool).await?;
     Ok(Json(configitem))
 }
 
@@ -88,13 +90,13 @@ pub async fn read_one_ci(
 #[utoipa::path(put,
     path = "/{id}",
     request_body(
-        content = entities::configitems::ConfigItemChangeset,
+        content = ConfigItemUpdateset,
         description = "Configuration Item data to update in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = OK,
-            body = entities::configitems::ConfigItem,
+            body = ConfigItem,
             description = "Configuration Item updated successfully.",
             content_type = "application/json"
         ),
@@ -113,9 +115,9 @@ pub async fn read_one_ci(
 pub async fn update_ci(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-    Json(configitem): Json<entities::configitems::ConfigItemChangeset>,
-) -> Result<Json<entities::configitems::ConfigItem>, Error> {
-    let configitem = entities::configitems::update(id, configitem, &app_state.db_pool).await?;
+    Json(configitem): Json<ConfigItemUpdateset>,
+) -> Result<Json<ConfigItem>, Error> {
+    let configitem = configitems::update(id, configitem, &app_state.db_pool).await?;
     Ok(Json(configitem))
 }
 
@@ -139,6 +141,6 @@ pub async fn delete_ci(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, Error> {
-    entities::configitems::delete(id, &app_state.db_pool).await?;
+    configitems::delete(id, &app_state.db_pool).await?;
     Ok(StatusCode::NO_CONTENT)
 }

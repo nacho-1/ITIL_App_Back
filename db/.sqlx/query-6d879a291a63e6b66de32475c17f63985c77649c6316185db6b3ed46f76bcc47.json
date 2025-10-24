@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, name, status as \"status: CIStatus\", created_at, type, owner, description \n        FROM configitems \n        WHERE id = $1",
+  "query": "\n        UPDATE configitems\n        SET name = COALESCE($1, name), status = COALESCE($2, status), created_at = COALESCE($3, created_at),\n            type = CASE\n                WHEN $4 then type\n                ELSE $5\n            END,\n            owner = CASE\n                WHEN $6 then owner\n                ELSE $7\n            END,\n            description = COALESCE($8, description)\n        WHERE id = $9\n        RETURNING id, name, status as \"status: CIStatus\", created_at, type, owner, description",
   "describe": {
     "columns": [
       {
@@ -54,6 +54,27 @@
     ],
     "parameters": {
       "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "cistatus",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "maintenance",
+                "testing",
+                "retired"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Bool",
+        "Text",
+        "Bool",
+        "Text",
+        "Text",
         "Uuid"
       ]
     },
@@ -67,5 +88,5 @@
       false
     ]
   },
-  "hash": "d456652c2e3a6d79ba016c760f76eb8b8354eea01a7fbb01d6078c22aa3b8d4d"
+  "hash": "6d879a291a63e6b66de32475c17f63985c77649c6316185db6b3ed46f76bcc47"
 }

@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, name, status as \"status: CIStatus\", created_at, type, owner, description\n        FROM configitems\n        WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: CIStatus",
+        "type_info": {
+          "Custom": {
+            "name": "cistatus",
+            "kind": {
+              "Enum": [
+                "active",
+                "inactive",
+                "maintenance",
+                "testing",
+                "retired"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "owner",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "223d56634159de89fb343423b01ed8a82e973884903b7497ad2bf9dee41f7da2"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        DELETE FROM configitems \n        WHERE id = $1 \n        RETURNING id",
+  "query": "\n        DELETE FROM configitems\n        WHERE id = $1\n        RETURNING id",
   "describe": {
     "columns": [
       {
@@ -18,5 +18,5 @@
       false
     ]
   },
-  "hash": "ada157f79d31858602a0f66c93ac53d35a0f2cceaff1a8b966bed19793142df0"
+  "hash": "ad1ed3d5ac6a52f68fcb5e674f4f10a2ba4d03be8367b65f780f0368e8a8232e"
 }

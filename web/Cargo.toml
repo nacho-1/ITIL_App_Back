@@ -34,7 +34,7 @@ utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
 
 [dev-dependencies]
-#fake = "4.0"
+chrono = "0.4"
 googletest = "0.14"
 itil-back-db = { path = "../db", features = ["test-helpers"] }
 itil-back-web = { path = ".", features = ["test-helpers"] }
