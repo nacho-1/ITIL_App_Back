@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM problem_incident_relations\n        WHERE problem_id = $1\n        AND incident_id = $2\n        RETURNING incident_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "incident_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "87592765b86449c803337f360b4dd774a8d93db1f79ab4de805c0829c90f4b20"
+}

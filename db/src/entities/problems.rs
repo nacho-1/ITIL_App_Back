@@ -8,6 +8,9 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
+/// Module for handling relations between Incidents and Problems.
+pub mod incident_relations;
+
 #[derive(Serialize, Debug, ToSchema)]
 #[cfg_attr(any(feature = "test-helpers", test), derive(Deserialize))]
 pub struct Problem {

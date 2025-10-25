@@ -4,6 +4,8 @@ use itil_back_db::entities::problems::{self, Problem, ProblemCreateset, ProblemU
 use tracing::info;
 use uuid::Uuid;
 
+pub mod incident_relations;
+
 #[axum::debug_handler]
 #[utoipa::path(post,
     path = "",

@@ -3,7 +3,7 @@ use crate::{
     controllers::{
         configitems, health,
         incidents::{self, ci_relations},
-        problems,
+        problems::{self, incident_relations},
     },
     state::AppState,
 };
@@ -80,5 +80,13 @@ fn problems_router() -> OpenApiRouter<Arc<AppState>> {
             problems::read_one_problem,
             problems::update_problem,
             problems::delete_problem,
+        ))
+        .routes(routes!(
+            incident_relations::create_problem_incident_relation,
+            incident_relations::read_all_problem_incident_relations,
+        ))
+        .routes(routes!(
+            incident_relations::update_problem_incident_relation,
+            incident_relations::delete_problem_incident_relation,
         ))
 }
