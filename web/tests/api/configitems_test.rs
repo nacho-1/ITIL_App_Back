@@ -113,8 +113,8 @@ async fn test_create_success(context: &DbTestContext) {
 
     let ci: ConfigItem = response.into_body().into_json::<ConfigItem>().await;
     assert_that!(ci.name, eq(&createset.name));
-    assert_that!(ci.status, eq(createset.status.clone().unwrap()));
-    assert_that!(ci.created_at, eq(createset.created_at.clone().unwrap()));
+    assert_that!(ci.status, eq(createset.status.unwrap()));
+    assert_that!(ci.created_at, eq(createset.created_at.unwrap()));
     assert_that!(ci.r#type, eq(&createset.r#type));
     assert_that!(ci.owner, eq(&createset.owner));
     assert_that!(ci.description, eq(&createset.description));
