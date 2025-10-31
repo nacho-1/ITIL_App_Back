@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO ci_changes (ci_id, implementation_timedate, documentation)\n        VALUES ($1, $2, $3)\n        RETURNING id, ci_id, implementation_timedate, documentation",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "ci_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "implementation_timedate",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "documentation",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1a5aef8b7176cf1855fb66f940f074ed2fc85079137a6720e16d1ee88cfaa3d2"
+}

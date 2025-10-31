@@ -10,6 +10,9 @@ use uuid::Uuid;
 use validator::Validate;
 use validator::ValidationError;
 
+/// Tracking of CI changes.
+pub mod changes;
+
 /// Configuration Item in the database.
 #[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(any(feature = "test-helpers", test), derive(Deserialize, PartialEq))]

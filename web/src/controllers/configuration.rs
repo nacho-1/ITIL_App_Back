@@ -1,10 +1,12 @@
 use crate::{apidoc, error::Error, state::SharedAppState};
 use axum::{extract::Path, extract::State, http::StatusCode, Json};
-use itil_back_db::entities::configitems::{
+use itil_back_db::entities::configuration::{
     self, ConfigItem, ConfigItemCreateset, ConfigItemUpdateset,
 };
 use tracing::info;
 use uuid::Uuid;
+
+pub mod changes;
 
 #[axum::debug_handler]
 #[utoipa::path(post,
@@ -33,7 +35,7 @@ pub async fn create_ci(
     State(app_state): State<SharedAppState>,
     Json(configitem): Json<ConfigItemCreateset>,
 ) -> Result<(StatusCode, Json<ConfigItem>), Error> {
-    let configitem = configitems::create(configitem, &app_state.db_pool).await?;
+    let configitem = configuration::create(configitem, &app_state.db_pool).await?;
     Ok((StatusCode::CREATED, Json(configitem)))
 }
 
@@ -54,7 +56,7 @@ pub async fn create_ci(
 pub async fn read_all_ci(
     State(app_state): State<SharedAppState>,
 ) -> Result<Json<Vec<ConfigItem>>, Error> {
-    let configitems = configitems::load_all(&app_state.db_pool).await?;
+    let configitems = configuration::load_all(&app_state.db_pool).await?;
 
     info!("responding with {:?}", configitems);
 
@@ -82,7 +84,7 @@ pub async fn read_one_ci(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<ConfigItem>, Error> {
-    let configitem = configitems::load(id, &app_state.db_pool).await?;
+    let configitem = configuration::load(id, &app_state.db_pool).await?;
     Ok(Json(configitem))
 }
 
@@ -117,7 +119,7 @@ pub async fn update_ci(
     Path(id): Path<Uuid>,
     Json(configitem): Json<ConfigItemUpdateset>,
 ) -> Result<Json<ConfigItem>, Error> {
-    let configitem = configitems::update(id, configitem, &app_state.db_pool).await?;
+    let configitem = configuration::update(id, configitem, &app_state.db_pool).await?;
     Ok(Json(configitem))
 }
 
@@ -141,6 +143,6 @@ pub async fn delete_ci(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, Error> {
-    configitems::delete(id, &app_state.db_pool).await?;
+    configuration::delete(id, &app_state.db_pool).await?;
     Ok(StatusCode::NO_CONTENT)
 }

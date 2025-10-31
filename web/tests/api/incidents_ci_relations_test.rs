@@ -17,16 +17,16 @@ use serde_json::json;
 use uuid::Uuid;
 
 async fn post_ci(context: &DbTestContext) -> Uuid {
-    let changeset = entities::configitems::ConfigItemCreateset {
+    let changeset = entities::configuration::ConfigItemCreateset {
         name: String::from("Testing CI for Relations with Incidentes"),
-        status: Some(entities::configitems::CIStatus::Active),
+        status: Some(entities::configuration::CIStatus::Active),
         created_at: Some("2023-09-15T12:34:56Z".parse().unwrap()),
         r#type: Some(String::from("Test CI")),
         owner: Some(String::from("Me")),
         description: String::from("I'm for testing"),
     };
 
-    let ci = entities::configitems::create(changeset, &context.db_pool)
+    let ci = entities::configuration::create(changeset, &context.db_pool)
         .await
         .unwrap();
 

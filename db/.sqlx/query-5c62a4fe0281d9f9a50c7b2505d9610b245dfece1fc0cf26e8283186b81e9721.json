@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE ci_changes\n        SET implementation_timedate = COALESCE($1, implementation_timedate),\n            documentation = COALESCE($2, documentation)\n        WHERE id = $3\n        AND ci_id = $4\n        RETURNING id, ci_id, implementation_timedate, documentation",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "ci_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "implementation_timedate",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "documentation",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5c62a4fe0281d9f9a50c7b2505d9610b245dfece1fc0cf26e8283186b81e9721"
+}

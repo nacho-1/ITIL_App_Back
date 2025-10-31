@@ -1,7 +1,8 @@
 use crate::{
     apidoc::ApiDoc,
     controllers::{
-        configitems, health,
+        configuration::{self, changes},
+        health,
         incidents::{self, ci_relations},
         problems::{self, incident_relations},
     },
@@ -41,11 +42,23 @@ pub fn init_routes(app_state: AppState) -> Router {
 
 fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
     OpenApiRouter::new()
-        .routes(routes!(configitems::create_ci, configitems::read_all_ci,))
         .routes(routes!(
-            configitems::read_one_ci,
-            configitems::update_ci,
-            configitems::delete_ci,
+            configuration::create_ci,
+            configuration::read_all_ci,
+        ))
+        .routes(routes!(
+            configuration::read_one_ci,
+            configuration::update_ci,
+            configuration::delete_ci,
+        ))
+        .routes(routes!(
+            changes::create_ci_change,
+            changes::read_all_ci_changes,
+        ))
+        .routes(routes!(
+            changes::read_one_ci_change,
+            changes::update_ci_change,
+            changes::delete_ci_change,
         ))
 }
 

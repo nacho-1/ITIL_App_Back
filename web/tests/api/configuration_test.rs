@@ -7,7 +7,7 @@ use googletest::prelude::*;
 use hyper::StatusCode;
 use itil_back_db::entities::{
     self,
-    configitems::{self, CIStatus, ConfigItem, ConfigItemCreateset, ConfigItemUpdateset},
+    configuration::{self, CIStatus, ConfigItem, ConfigItemCreateset, ConfigItemUpdateset},
 };
 use itil_back_macros::db_test;
 use itil_back_web::test_helpers::{BodyExt, DbTestContext, RouterExt};
@@ -42,23 +42,23 @@ fn create_basic_updateset() -> ConfigItemUpdateset {
 async fn test_create_invalid(context: &DbTestContext) {
     let createset = create_basic_createset();
     let mut sets = Vec::new();
-    sets.push(entities::configitems::ConfigItemCreateset {
+    sets.push(entities::configuration::ConfigItemCreateset {
         name: String::from(""),
         ..createset.clone()
     });
-    sets.push(entities::configitems::ConfigItemCreateset {
+    sets.push(entities::configuration::ConfigItemCreateset {
         name: String::from(&"x".repeat(256)),
         ..createset.clone()
     });
-    sets.push(entities::configitems::ConfigItemCreateset {
+    sets.push(entities::configuration::ConfigItemCreateset {
         r#type: Some(String::from(&"x".repeat(1025))),
         ..createset.clone()
     });
-    sets.push(entities::configitems::ConfigItemCreateset {
+    sets.push(entities::configuration::ConfigItemCreateset {
         owner: Some(String::from(&"x".repeat(1025))),
         ..createset.clone()
     });
-    sets.push(entities::configitems::ConfigItemCreateset {
+    sets.push(entities::configuration::ConfigItemCreateset {
         description: String::from(&"x".repeat(1025)),
         ..createset.clone()
     });
@@ -119,7 +119,7 @@ async fn test_create_success(context: &DbTestContext) {
     assert_that!(ci.owner, eq(&createset.owner));
     assert_that!(ci.description, eq(&createset.description));
 
-    let configitems = configitems::load_all(&context.db_pool).await.unwrap();
+    let configitems = configuration::load_all(&context.db_pool).await.unwrap();
     assert_that!(configitems, len(eq(1)));
 }
 
@@ -218,7 +218,7 @@ async fn test_create_border_success(context: &DbTestContext) {
 async fn test_status(context: &DbTestContext) {
     let createset = create_basic_createset();
     let mut sets = Vec::new();
-    sets.push(configitems::ConfigItemCreateset {
+    sets.push(configuration::ConfigItemCreateset {
         status: Some(CIStatus::Testing),
         ..createset.clone()
     });
@@ -260,7 +260,7 @@ async fn test_status(context: &DbTestContext) {
 #[db_test]
 async fn test_read_all(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset, &context.db_pool)
+    let ci = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -287,7 +287,7 @@ async fn test_read_one_nonexistent(context: &DbTestContext) {
 #[db_test]
 async fn test_read_one_success(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset, &context.db_pool)
+    let ci = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -306,7 +306,7 @@ async fn test_read_one_success(context: &DbTestContext) {
 #[db_test]
 async fn test_update_invalid(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset, &context.db_pool)
+    let ci = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -347,7 +347,7 @@ async fn test_update_invalid(context: &DbTestContext) {
 
         assert_that!(response.status(), eq(StatusCode::UNPROCESSABLE_ENTITY));
 
-        let ci_after = configitems::load(ci.id, &context.db_pool).await.unwrap();
+        let ci_after = configuration::load(ci.id, &context.db_pool).await.unwrap();
         assert_that!(ci_after, eq(&ci));
     }
 }
@@ -355,7 +355,7 @@ async fn test_update_invalid(context: &DbTestContext) {
 #[db_test]
 async fn test_update_invalid_nulls(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let configitem = configitems::create(createset, &context.db_pool)
+    let configitem = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -414,7 +414,7 @@ async fn test_update_nonexistent(context: &DbTestContext) {
 #[db_test]
 async fn test_update_success(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset, &context.db_pool)
+    let ci = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -440,14 +440,14 @@ async fn test_update_success(context: &DbTestContext) {
     assert_that!(ci.owner, eq(&updateset.owner.unwrap()));
     assert_that!(ci.description, eq(&updateset.description.unwrap().unwrap()));
 
-    let ci_after = configitems::load(ci.id, &context.db_pool).await.unwrap();
+    let ci_after = configuration::load(ci.id, &context.db_pool).await.unwrap();
     assert_that!(ci_after, eq(&ci));
 }
 
 #[db_test]
 async fn test_update_set_nulls(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset, &context.db_pool)
+    let ci = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -476,7 +476,7 @@ async fn test_update_set_nulls(context: &DbTestContext) {
 #[db_test]
 async fn test_update_nothing(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci_before = configitems::create(createset, &context.db_pool)
+    let ci_before = configuration::create(createset, &context.db_pool)
         .await
         .unwrap();
 
@@ -519,7 +519,7 @@ async fn test_delete_nonexistent(context: &DbTestContext) {
 #[db_test]
 async fn test_delete_success(context: &DbTestContext) {
     let createset = create_basic_createset();
-    let ci = configitems::create(createset.clone(), &context.db_pool)
+    let ci = configuration::create(createset.clone(), &context.db_pool)
         .await
         .unwrap();
 
@@ -532,6 +532,6 @@ async fn test_delete_success(context: &DbTestContext) {
 
     assert_that!(response.status(), eq(StatusCode::NO_CONTENT));
 
-    let result = configitems::load(ci.id, &context.db_pool).await;
+    let result = configuration::load(ci.id, &context.db_pool).await;
     assert_that!(result, err(anything()));
 }
