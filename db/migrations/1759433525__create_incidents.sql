@@ -7,6 +7,7 @@ CREATE TABLE incidents (
 	title TEXT NOT NULL,
 	status incident_status NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+	resolved_at TIMESTAMPTZ,
 	impact incident_impact NOT NULL,
 	urgency incident_urgency NOT NULL,
 	owner TEXT,

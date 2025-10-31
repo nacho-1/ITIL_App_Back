@@ -19,6 +19,7 @@ pub struct Incident {
     pub title: String,
     pub status: IncidentStatus,
     pub created_at: DateTime<Utc>,
+    pub resolved_at: Option<DateTime<Utc>>,
     pub impact: IncidentImpact,
     pub urgency: IncidentUrgency,
     pub owner: Option<String>,
@@ -36,11 +37,12 @@ impl Serialize for Incident {
     where
         S: serde::Serializer,
     {
-        let mut state = serializer.serialize_struct("Incident", 9)?;
+        let mut state = serializer.serialize_struct("Incident", 10)?;
         state.serialize_field("id", &self.id)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("status", &self.status)?;
         state.serialize_field("created_at", &self.created_at)?;
+        state.serialize_field("resolved_at", &self.resolved_at)?;
         state.serialize_field("impact", &self.impact)?;
         state.serialize_field("urgency", &self.urgency)?;
         state.serialize_field("priority", &self.priority())?;
@@ -70,6 +72,7 @@ impl PartialSchema for Incident {
             pub title: String,
             pub status: IncidentStatus,
             pub created_at: DateTime<Utc>,
+            pub resolved_at: Option<DateTime<Utc>>,
             pub impact: IncidentImpact,
             pub urgency: IncidentUrgency,
             pub priority: IncidentPrio,
@@ -91,6 +94,7 @@ pub struct IncidentChangeset {
     pub title: String,
     pub status: IncidentStatus,
     pub created_at: Option<DateTime<Utc>>,
+    pub resolved_at: Option<DateTime<Utc>>,
     pub impact: IncidentImpact,
     pub urgency: IncidentUrgency,
     #[validate(length(min = 1, max = 63))]
@@ -188,7 +192,7 @@ pub async fn load_all(
     let incidents = sqlx::query_as!(
         Incident,
         "
-        SELECT id, title, status as \"status: IncidentStatus\", created_at,
+        SELECT id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
             owner, description
         FROM incidents"
@@ -206,7 +210,7 @@ pub async fn load(
     match sqlx::query_as!(
         Incident,
         "
-        SELECT id, title, status as \"status: IncidentStatus\", created_at,
+        SELECT id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
             owner, description
         FROM incidents
@@ -230,12 +234,13 @@ pub async fn create(
 
     let record = sqlx::query!(
         "
-        INSERT INTO incidents (title, status, created_at, impact, urgency, owner, description) 
-        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7) 
+        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency, owner, description) 
+        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8) 
         RETURNING id, created_at",
         incident.title,
         incident.status as IncidentStatus,
         incident.created_at,
+        incident.resolved_at,
         incident.impact as IncidentImpact,
         incident.urgency as IncidentUrgency,
         incident.owner,
@@ -250,6 +255,7 @@ pub async fn create(
         title: incident.title,
         status: incident.status,
         created_at: record.created_at,
+        resolved_at: incident.resolved_at,
         impact: incident.impact,
         urgency: incident.urgency,
         owner: incident.owner,
@@ -268,12 +274,13 @@ pub async fn update(
         "
         UPDATE incidents
         SET title = $1, status = $2, created_at = COALESCE($3, created_at),
-            impact = $4, urgency = $5, owner = $6, description = $7 
-        WHERE id = $8
+            resolved_at = $4, impact = $5, urgency = $6, owner = $7, description = $8 
+        WHERE id = $9
         RETURNING id, created_at",
         incident.title,
         incident.status as IncidentStatus,
         incident.created_at,
+        incident.resolved_at,
         incident.impact as IncidentImpact,
         incident.urgency as IncidentUrgency,
         incident.owner,
@@ -289,6 +296,7 @@ pub async fn update(
             title: incident.title,
             status: incident.status,
             created_at: record.created_at,
+            resolved_at: incident.resolved_at,
             impact: incident.impact,
             urgency: incident.urgency,
             owner: incident.owner,
@@ -329,6 +337,7 @@ mod incidents_tests {
             id: uuid!("67e55044-10b1-426f-9247-bb680e5fe0c8"),
             status: IncidentStatus::Open,
             created_at: Utc::now(),
+            resolved_at: None,
             impact: IncidentImpact::Low,
             urgency: IncidentUrgency::Low,
             owner: Some(String::from("Me")),

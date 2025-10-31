@@ -38,6 +38,7 @@ async fn post_incident(context: &DbTestContext) -> Uuid {
         title: String::from("Testing Incident"),
         status: entities::incidents::IncidentStatus::InProgress,
         created_at: Some("2023-09-15T12:34:56Z".parse().unwrap()),
+        resolved_at: None,
         impact: entities::incidents::IncidentImpact::Low,
         urgency: entities::incidents::IncidentUrgency::Low,
         owner: Some(String::from("Me")),
