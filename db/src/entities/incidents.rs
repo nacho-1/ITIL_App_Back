@@ -1,3 +1,4 @@
+use crate::entity_helpers;
 use serde::ser::SerializeStruct;
 use serde::Deserialize;
 use serde::Serialize;
@@ -9,11 +10,13 @@ use utoipa::PartialSchema;
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
+use validator::ValidationError;
 
 /// Module for handling relations between Configuration Items and Incidents.
 pub mod ci_relations;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
+#[cfg_attr(any(feature = "test-helpers", test), derive(Deserialize, PartialEq))]
 pub struct Incident {
     pub id: Uuid,
     pub title: String,
@@ -32,6 +35,7 @@ impl Incident {
     }
 }
 
+// Manually implement serialize cause priority is not an actual field.
 impl Serialize for Incident {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -86,29 +90,105 @@ impl PartialSchema for Incident {
     }
 }
 
-#[derive(Deserialize, Validate, Clone, ToSchema)]
+/// Payload for creating an Incident.
+#[derive(Clone, Deserialize, ToSchema, Validate)]
 #[cfg_attr(feature = "test-helpers", derive(Serialize))]
-pub struct IncidentChangeset {
-    #[validate(length(min = 1, max = 255))]
+pub struct IncidentCreateset {
     #[schema(example = "Proxy Not Working")]
+    #[validate(length(min = 1, max = 255))]
     pub title: String,
-    pub status: IncidentStatus,
+    #[schema(example = "open")]
+    pub status: Option<IncidentStatus>,
     pub created_at: Option<DateTime<Utc>>,
     pub resolved_at: Option<DateTime<Utc>>,
     pub impact: IncidentImpact,
     pub urgency: IncidentUrgency,
-    #[validate(length(min = 1, max = 63))]
     #[schema(example = "Sales Department")]
+    #[validate(length(max = 1024))]
     pub owner: Option<String>,
-    #[validate(length(max = 255))]
     #[schema(example = "Proxy server not working. Stopped this morning.")]
+    #[validate(length(max = 1024))]
     pub description: String,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
-#[schema(example = "open")]
-#[sqlx(type_name = "incident_status", rename_all = "lowercase")]
+/// Payload for updating an Incident.
+#[derive(Clone, Deserialize, ToSchema, Validate)]
+#[validate(schema(function = "validate_required_fields"))]
+#[cfg_attr(feature = "test-helpers", derive(Serialize))]
+pub struct IncidentUpdateset {
+    #[schema(example = "Proxy Not Working")]
+    #[validate(length(min = 1, max = 255))]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub title: Option<Option<String>>,
+    #[schema(example = "open")]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub status: Option<Option<IncidentStatus>>,
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub created_at: Option<Option<DateTime<Utc>>>,
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub resolved_at: Option<Option<DateTime<Utc>>>,
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub impact: Option<Option<IncidentImpact>>,
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub urgency: Option<Option<IncidentUrgency>>,
+    #[schema(example = "Sales Department")]
+    #[validate(length(max = 1024))]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub owner: Option<Option<String>>,
+    #[schema(example = "Proxy server not working. Stopped this morning.")]
+    #[validate(length(max = 1024))]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub description: Option<Option<String>>,
+}
+
+/// Validate that required fields of [IncidentUpdateset] aren't explicitly null.
+fn validate_required_fields(updateset: &IncidentUpdateset) -> Result<(), ValidationError> {
+    entity_helpers::validate_not_null(&updateset.title)?;
+    entity_helpers::validate_not_null(&updateset.status)?;
+    entity_helpers::validate_not_null(&updateset.created_at)?;
+    entity_helpers::validate_not_null(&updateset.impact)?;
+    entity_helpers::validate_not_null(&updateset.urgency)?;
+    entity_helpers::validate_not_null(&updateset.description)?;
+
+    Ok(())
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, ToSchema, Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "incident_status", rename_all = "lowercase")]
+#[schema(example = "open")]
 #[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentStatus {
     Open,
@@ -116,10 +196,10 @@ pub enum IncidentStatus {
     Closed,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
-#[schema(example = "high")]
-#[sqlx(type_name = "incident_impact", rename_all = "lowercase")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, ToSchema, Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "incident_impact", rename_all = "lowercase")]
+#[schema(example = "high")]
 #[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentImpact {
     High,
@@ -137,10 +217,10 @@ impl IncidentImpact {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
-#[schema(example = "high")]
-#[sqlx(type_name = "incident_urgency", rename_all = "lowercase")]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, ToSchema, Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "incident_urgency", rename_all = "lowercase")]
+#[schema(example = "high")]
 #[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
 pub enum IncidentUrgency {
     High,
@@ -158,7 +238,7 @@ impl IncidentUrgency {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, ToSchema)]
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, ToSchema, Type)]
 #[schema(example = "critical")]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(any(feature = "test-helpers", test), derive(PartialEq))]
@@ -227,81 +307,78 @@ pub async fn load(
 }
 
 pub async fn create(
-    incident: IncidentChangeset,
+    createset: IncidentCreateset,
     executor: impl sqlx::Executor<'_, Database = Postgres>,
 ) -> Result<Incident, crate::Error> {
-    incident.validate()?;
+    createset.validate()?;
 
-    let record = sqlx::query!(
+    let created_incident = sqlx::query_as!(
+        Incident,
         "
-        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency, owner, description) 
-        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8) 
-        RETURNING id, created_at",
-        incident.title,
-        incident.status as IncidentStatus,
-        incident.created_at,
-        incident.resolved_at,
-        incident.impact as IncidentImpact,
-        incident.urgency as IncidentUrgency,
-        incident.owner,
-        incident.description,
+        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency, owner, description)
+        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8)
+        RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
+            impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
+            owner, description",
+        createset.title,
+        createset.status.unwrap_or(IncidentStatus::Open) as IncidentStatus,
+        createset.created_at,
+        createset.resolved_at,
+        createset.impact as IncidentImpact,
+        createset.urgency as IncidentUrgency,
+        createset.owner,
+        createset.description,
     )
     .fetch_one(executor)
     .await
     .map_err(crate::Error::DbError)?;
 
-    Ok(Incident {
-        id: record.id,
-        title: incident.title,
-        status: incident.status,
-        created_at: record.created_at,
-        resolved_at: incident.resolved_at,
-        impact: incident.impact,
-        urgency: incident.urgency,
-        owner: incident.owner,
-        description: incident.description,
-    })
+    Ok(created_incident)
 }
 
 pub async fn update(
     id: Uuid,
-    incident: IncidentChangeset,
+    updateset: IncidentUpdateset,
     executor: impl sqlx::Executor<'_, Database = Postgres>,
 ) -> Result<Incident, crate::Error> {
-    incident.validate()?;
+    updateset.validate()?;
 
-    match sqlx::query!(
+    match sqlx::query_as!(
+        Incident,
         "
         UPDATE incidents
-        SET title = $1, status = $2, created_at = COALESCE($3, created_at),
-            resolved_at = $4, impact = $5, urgency = $6, owner = $7, description = $8 
-        WHERE id = $9
-        RETURNING id, created_at",
-        incident.title,
-        incident.status as IncidentStatus,
-        incident.created_at,
-        incident.resolved_at,
-        incident.impact as IncidentImpact,
-        incident.urgency as IncidentUrgency,
-        incident.owner,
-        incident.description,
+        SET title = COALESCE($1, title), status = COALESCE($2, status), created_at = COALESCE($3, created_at),
+            resolved_at = CASE
+                WHEN $4 THEN resolved_at
+                ELSE $5
+            END,
+            impact = COALESCE($6, impact), urgency = COALESCE($7, urgency),
+            owner = CASE
+                WHEN $8 THEN owner
+                ELSE $9
+            END,
+            description = COALESCE($10, description)
+        WHERE id = $11
+        RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
+            impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
+            owner, description",
+        updateset.title.unwrap_or(None),
+        updateset.status.unwrap_or(None) as Option<IncidentStatus>,
+        updateset.created_at.unwrap_or(None),
+        updateset.resolved_at.is_none(),
+        updateset.resolved_at.unwrap_or(None),
+        updateset.impact.unwrap_or(None) as Option<IncidentImpact>,
+        updateset.urgency.unwrap_or(None) as Option<IncidentUrgency>,
+        updateset.owner.is_none(),
+        updateset.owner.unwrap_or(None),
+        updateset.description.unwrap_or(None),
         id,
     )
     .fetch_optional(executor)
     .await
     .map_err(crate::Error::DbError)?
     {
-        Some(record) => Ok(Incident {
-            id: record.id,
-            title: incident.title,
-            status: incident.status,
-            created_at: record.created_at,
-            resolved_at: incident.resolved_at,
-            impact: incident.impact,
-            urgency: incident.urgency,
-            owner: incident.owner,
-            description: incident.description,
-        }),
+        Some(updated_incident) => Ok(updated_incident),
         None => Err(crate::Error::NoRecordFound),
     }
 }

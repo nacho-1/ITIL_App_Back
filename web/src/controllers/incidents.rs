@@ -1,6 +1,6 @@
 use crate::{apidoc, error::Error, state::SharedAppState};
 use axum::{extract::Path, extract::State, http::StatusCode, Json};
-use itil_back_db::entities;
+use itil_back_db::entities::incidents::{self, Incident, IncidentCreateset, IncidentUpdateset};
 use tracing::info;
 use uuid::Uuid;
 
@@ -11,13 +11,13 @@ pub mod ci_relations;
 #[utoipa::path(post,
     path = "",
     request_body(
-        content = entities::incidents::IncidentChangeset,
+        content = IncidentCreateset,
         description = "Incident to create in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = CREATED,
-            body = entities::incidents::Incident,
+            body = Incident,
             description = "Incident created successfully.",
             content_type = "application/json"
         ),
@@ -32,9 +32,9 @@ pub mod ci_relations;
 )]
 pub async fn create_incident(
     State(app_state): State<SharedAppState>,
-    Json(incident): Json<entities::incidents::IncidentChangeset>,
-) -> Result<(StatusCode, Json<entities::incidents::Incident>), Error> {
-    let incident = entities::incidents::create(incident, &app_state.db_pool).await?;
+    Json(createset): Json<IncidentCreateset>,
+) -> Result<(StatusCode, Json<Incident>), Error> {
+    let incident = incidents::create(createset, &app_state.db_pool).await?;
     Ok((StatusCode::CREATED, Json(incident)))
 }
 
@@ -43,7 +43,7 @@ pub async fn create_incident(
     path = "",
     responses(
         (status = OK,
-            body = Vec<entities::incidents::Incident>,
+            body = Vec<Incident>,
             description = "List of Incidents."
         ),
         (status = INTERNAL_SERVER_ERROR,
@@ -54,8 +54,8 @@ pub async fn create_incident(
 )]
 pub async fn read_all_incidents(
     State(app_state): State<SharedAppState>,
-) -> Result<Json<Vec<entities::incidents::Incident>>, Error> {
-    let incidents = entities::incidents::load_all(&app_state.db_pool).await?;
+) -> Result<Json<Vec<Incident>>, Error> {
+    let incidents = incidents::load_all(&app_state.db_pool).await?;
 
     info!("responding with {:?}", incidents);
 
@@ -67,7 +67,7 @@ pub async fn read_all_incidents(
     path = "/{id}",
     responses(
         (status = OK,
-            body = entities::incidents::Incident,
+            body = Incident,
             description = "OK"
         ),
         (status = NOT_FOUND,
@@ -82,8 +82,8 @@ pub async fn read_all_incidents(
 pub async fn read_one_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<entities::incidents::Incident>, Error> {
-    let incident = entities::incidents::load(id, &app_state.db_pool).await?;
+) -> Result<Json<Incident>, Error> {
+    let incident = incidents::load(id, &app_state.db_pool).await?;
     Ok(Json(incident))
 }
 
@@ -91,13 +91,13 @@ pub async fn read_one_incident(
 #[utoipa::path(put,
     path = "/{id}",
     request_body(
-        content = entities::incidents::IncidentChangeset,
+        content = IncidentUpdateset,
         description = "Incident data to update in the database.",
         content_type = "application/json",
     ),
     responses(
         (status = OK,
-            body = entities::incidents::Incident,
+            body = Incident,
             description = "Incident updated successfully.",
             content_type = "application/json"
         ),
@@ -116,9 +116,9 @@ pub async fn read_one_incident(
 pub async fn update_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
-    Json(incident): Json<entities::incidents::IncidentChangeset>,
-) -> Result<Json<entities::incidents::Incident>, Error> {
-    let incident = entities::incidents::update(id, incident, &app_state.db_pool).await?;
+    Json(updateset): Json<IncidentUpdateset>,
+) -> Result<Json<Incident>, Error> {
+    let incident = incidents::update(id, updateset, &app_state.db_pool).await?;
     Ok(Json(incident))
 }
 
@@ -142,6 +142,6 @@ pub async fn delete_incident(
     State(app_state): State<SharedAppState>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, Error> {
-    entities::incidents::delete(id, &app_state.db_pool).await?;
+    incidents::delete(id, &app_state.db_pool).await?;
     Ok(StatusCode::NO_CONTENT)
 }

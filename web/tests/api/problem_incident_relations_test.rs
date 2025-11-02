@@ -17,9 +17,9 @@ use serde_json::json;
 use uuid::Uuid;
 
 async fn post_incident(context: &DbTestContext) -> Uuid {
-    let createset = entities::incidents::IncidentChangeset {
+    let createset = entities::incidents::IncidentCreateset {
         title: String::from("Testing Incident"),
-        status: entities::incidents::IncidentStatus::InProgress,
+        status: Some(entities::incidents::IncidentStatus::InProgress),
         created_at: Some("2023-09-15T12:34:56Z".parse().unwrap()),
         resolved_at: None,
         impact: entities::incidents::IncidentImpact::Low,
