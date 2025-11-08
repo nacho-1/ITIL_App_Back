@@ -8,7 +8,7 @@ use uuid::Uuid;
 use validator::{Validate, ValidationError};
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(any(feature = "test-helpers"), derive(Deserialize))]
+#[cfg_attr(any(feature = "test-helpers"), derive(Deserialize, PartialEq))]
 pub struct CIChange {
     pub id: Uuid,
     pub ci_id: Uuid,
@@ -141,6 +141,7 @@ pub async fn create(
     .await
     .map_err(crate::Error::DbError)?;
 
+    tx.commit().await?;
     Ok(created_change)
 }
 
