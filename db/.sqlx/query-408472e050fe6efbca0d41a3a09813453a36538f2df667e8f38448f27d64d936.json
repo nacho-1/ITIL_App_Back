@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id, title, status as \"status: IncidentStatus\", created_at, resolved_at,\n            impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",\n            owner, description\n        FROM incidents\n        WHERE id = $1",
+  "query": "\n        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency,\n            owner, asignee, description)\n        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8, $9)\n        RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,\n            impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",\n            owner, asignee, description",
   "describe": {
     "columns": [
       {
@@ -78,13 +78,59 @@
       },
       {
         "ordinal": 8,
+        "name": "asignee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
         "name": "description",
         "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text",
+        {
+          "Custom": {
+            "name": "incident_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Timestamptz",
+        {
+          "Custom": {
+            "name": "incident_impact",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "incident_urgency",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text",
+        "Text"
       ]
     },
     "nullable": [
@@ -96,8 +142,9 @@
       false,
       false,
       true,
+      true,
       false
     ]
   },
-  "hash": "92b0d1c0d673bfe42311c4db9a7a705571100e7472f5b9b69df327dfa915fe70"
+  "hash": "408472e050fe6efbca0d41a3a09813453a36538f2df667e8f38448f27d64d936"
 }

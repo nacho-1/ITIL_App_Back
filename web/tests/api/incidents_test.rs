@@ -23,6 +23,7 @@ fn create_basic_createset() -> IncidentCreateset {
         impact: IncidentImpact::Low,
         urgency: IncidentUrgency::Low,
         owner: Some(String::from("Testing Department")),
+        asignee: Some(String::from("Employee 123")),
         description: String::from("This is a fictional incident made for testing."),
     }
 }
@@ -36,6 +37,7 @@ fn create_basic_updateset() -> IncidentUpdateset {
         impact: Some(Some(IncidentImpact::Medium)),
         urgency: Some(Some(IncidentUrgency::Medium)),
         owner: Some(Some(String::from("Update Department"))),
+        asignee: Some(Some(String::from("Employee 321"))),
         description: Some(Some(String::from(
             "This is a fictional incident made for updating.",
         ))),
@@ -119,6 +121,7 @@ async fn test_create_success(context: &DbTestContext) {
     assert_that!(incident.impact, eq(createset.impact));
     assert_that!(incident.urgency, eq(createset.urgency));
     assert_that!(incident.owner, eq(&createset.owner));
+    assert_that!(incident.asignee, eq(&createset.asignee));
     assert_that!(incident.description, eq(&createset.description));
 
     let incidents = incidents::load_all(&context.db_pool).await.unwrap();
@@ -177,6 +180,18 @@ async fn test_create_border_success(context: &DbTestContext) {
     });
     sets.push(IncidentCreateset {
         owner: Some(String::from(&"x".repeat(1024))),
+        ..createset.clone()
+    });
+    sets.push(IncidentCreateset {
+        asignee: None,
+        ..createset.clone()
+    });
+    sets.push(IncidentCreateset {
+        asignee: Some(String::from("")),
+        ..createset.clone()
+    });
+    sets.push(IncidentCreateset {
+        asignee: Some(String::from(&"x".repeat(1024))),
         ..createset.clone()
     });
     sets.push(IncidentCreateset {
@@ -377,6 +392,10 @@ async fn test_update_invalid(context: &DbTestContext) {
         ..updateset.clone()
     });
     sets.push(IncidentUpdateset {
+        asignee: Some(Some(String::from(&"x".repeat(1025)))),
+        ..updateset.clone()
+    });
+    sets.push(IncidentUpdateset {
         description: Some(Some(String::from(&"x".repeat(1025)))),
         ..updateset.clone()
     });
@@ -500,6 +519,7 @@ async fn test_update_success(context: &DbTestContext) {
     assert_that!(incident.impact, eq(updateset.impact.unwrap().unwrap()));
     assert_that!(incident.urgency, eq(updateset.urgency.unwrap().unwrap()));
     assert_that!(incident.owner, eq(&updateset.owner.unwrap()));
+    assert_that!(incident.asignee, eq(&updateset.asignee.unwrap()));
     assert_that!(
         incident.description,
         eq(&updateset.description.unwrap().unwrap())
@@ -521,6 +541,7 @@ async fn test_update_set_nulls(context: &DbTestContext) {
     let updateset = IncidentUpdateset {
         resolved_at: Some(None),
         owner: Some(None),
+        asignee: Some(None),
         ..create_basic_updateset()
     };
     let payload = json!(updateset);
@@ -538,6 +559,7 @@ async fn test_update_set_nulls(context: &DbTestContext) {
     let incident_after: Incident = response.into_body().into_json::<Incident>().await;
     assert!(incident_after.resolved_at.is_none());
     assert!(incident_after.owner.is_none());
+    assert!(incident_after.asignee.is_none());
 }
 
 #[db_test]
@@ -555,6 +577,7 @@ async fn test_update_nothing(context: &DbTestContext) {
         impact: None,
         urgency: None,
         owner: None,
+        asignee: None,
         description: None,
     };
     let payload = json!(updateset);

@@ -25,6 +25,7 @@ async fn post_incident(context: &DbTestContext) -> Uuid {
         impact: entities::incidents::IncidentImpact::Low,
         urgency: entities::incidents::IncidentUrgency::Low,
         owner: Some(String::from("Me")),
+        asignee: Some(String::from("Employee 567")),
         description: String::from("Testing yay!!"),
     };
 

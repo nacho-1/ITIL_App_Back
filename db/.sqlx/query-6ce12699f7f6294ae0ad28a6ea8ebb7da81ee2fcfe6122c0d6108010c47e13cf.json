@@ -1,0 +1,154 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE incidents\n        SET title = COALESCE($1, title), status = COALESCE($2, status), created_at = COALESCE($3, created_at),\n            resolved_at = CASE\n                WHEN $4 THEN resolved_at\n                ELSE $5\n            END,\n            impact = COALESCE($6, impact), urgency = COALESCE($7, urgency),\n            owner = CASE\n                WHEN $8 THEN owner\n                ELSE $9\n            END,\n            asignee = CASE\n                WHEN $10 THEN asignee\n                ELSE $11\n            END,\n            description = COALESCE($12, description)\n        WHERE id = $13\n        RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,\n            impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",\n            owner, asignee, description",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: IncidentStatus",
+        "type_info": {
+          "Custom": {
+            "name": "incident_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "resolved_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "impact: IncidentImpact",
+        "type_info": {
+          "Custom": {
+            "name": "incident_impact",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "urgency: IncidentUrgency",
+        "type_info": {
+          "Custom": {
+            "name": "incident_urgency",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "owner",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "asignee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "description",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "incident_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Bool",
+        "Timestamptz",
+        {
+          "Custom": {
+            "name": "incident_impact",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "incident_urgency",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Text",
+        "Bool",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "6ce12699f7f6294ae0ad28a6ea8ebb7da81ee2fcfe6122c0d6108010c47e13cf"
+}

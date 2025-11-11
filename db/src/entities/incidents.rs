@@ -26,6 +26,7 @@ pub struct Incident {
     pub impact: IncidentImpact,
     pub urgency: IncidentUrgency,
     pub owner: Option<String>,
+    pub asignee: Option<String>,
     pub description: String,
 }
 
@@ -51,6 +52,7 @@ impl Serialize for Incident {
         state.serialize_field("urgency", &self.urgency)?;
         state.serialize_field("priority", &self.priority())?;
         state.serialize_field("owner", &self.owner)?;
+        state.serialize_field("asignee", &self.asignee)?;
         state.serialize_field("description", &self.description)?;
         state.end()
     }
@@ -82,6 +84,8 @@ impl PartialSchema for Incident {
             pub priority: IncidentPrio,
             #[schema(example = "Sales Department")]
             pub owner: Option<String>,
+            #[schema(example = "Employee 1837")]
+            pub asignee: Option<String>,
             #[schema(example = "Proxy server not working. Stopped this morning.")]
             pub description: String,
         }
@@ -106,6 +110,9 @@ pub struct IncidentCreateset {
     #[schema(example = "Sales Department")]
     #[validate(length(max = 1024))]
     pub owner: Option<String>,
+    #[schema(example = "Employee 1837")]
+    #[validate(length(max = 1024))]
+    pub asignee: Option<String>,
     #[schema(example = "Proxy server not working. Stopped this morning.")]
     #[validate(length(max = 1024))]
     pub description: String,
@@ -163,6 +170,14 @@ pub struct IncidentUpdateset {
         serde(skip_serializing_if = "Option::is_none")
     )]
     pub owner: Option<Option<String>>,
+    #[schema(example = "Employee 1837")]
+    #[validate(length(max = 1024))]
+    #[serde(default, with = "::serde_with::rust::double_option")]
+    #[cfg_attr(
+        any(feature = "test-helpers", test),
+        serde(skip_serializing_if = "Option::is_none")
+    )]
+    pub asignee: Option<Option<String>>,
     #[schema(example = "Proxy server not working. Stopped this morning.")]
     #[validate(length(max = 1024))]
     #[serde(default, with = "::serde_with::rust::double_option")]
@@ -274,7 +289,7 @@ pub async fn load_all(
         "
         SELECT id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
-            owner, description
+            owner, asignee, description
         FROM incidents"
     )
     .fetch_all(executor)
@@ -292,7 +307,7 @@ pub async fn load(
         "
         SELECT id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
-            owner, description
+            owner, asignee, description
         FROM incidents
         WHERE id = $1",
         id
@@ -315,11 +330,12 @@ pub async fn create(
     let created_incident = sqlx::query_as!(
         Incident,
         "
-        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency, owner, description)
-        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8)
+        INSERT INTO incidents (title, status, created_at, resolved_at, impact, urgency,
+            owner, asignee, description)
+        VALUES ($1, $2, COALESCE($3, now()), $4, $5, $6, $7, $8, $9)
         RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
-            owner, description",
+            owner, asignee, description",
         createset.title,
         createset.status.unwrap_or(IncidentStatus::Open) as IncidentStatus,
         createset.created_at,
@@ -327,6 +343,7 @@ pub async fn create(
         createset.impact as IncidentImpact,
         createset.urgency as IncidentUrgency,
         createset.owner,
+        createset.asignee,
         createset.description,
     )
     .fetch_one(executor)
@@ -357,11 +374,15 @@ pub async fn update(
                 WHEN $8 THEN owner
                 ELSE $9
             END,
-            description = COALESCE($10, description)
-        WHERE id = $11
+            asignee = CASE
+                WHEN $10 THEN asignee
+                ELSE $11
+            END,
+            description = COALESCE($12, description)
+        WHERE id = $13
         RETURNING id, title, status as \"status: IncidentStatus\", created_at, resolved_at,
             impact as \"impact: IncidentImpact\", urgency as \"urgency: IncidentUrgency\",
-            owner, description",
+            owner, asignee, description",
         updateset.title.unwrap_or(None),
         updateset.status.unwrap_or(None) as Option<IncidentStatus>,
         updateset.created_at.unwrap_or(None),
@@ -371,6 +392,8 @@ pub async fn update(
         updateset.urgency.unwrap_or(None) as Option<IncidentUrgency>,
         updateset.owner.is_none(),
         updateset.owner.unwrap_or(None),
+        updateset.asignee.is_none(),
+        updateset.asignee.unwrap_or(None),
         updateset.description.unwrap_or(None),
         id,
     )
@@ -418,6 +441,7 @@ mod incidents_tests {
             impact: IncidentImpact::Low,
             urgency: IncidentUrgency::Low,
             owner: Some(String::from("Me")),
+            asignee: Some(String::from("Someone")),
             description: String::from(""),
         }
     }

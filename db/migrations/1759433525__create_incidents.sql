@@ -11,6 +11,7 @@ CREATE TABLE incidents (
 	impact incident_impact NOT NULL,
 	urgency incident_urgency NOT NULL,
 	owner TEXT,
+	asignee TEXT,
 	description TEXT NOT NULL
 );
 
