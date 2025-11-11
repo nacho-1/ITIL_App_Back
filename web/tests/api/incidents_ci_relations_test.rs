@@ -6,7 +6,10 @@ use googletest::prelude::*;
 use hyper::StatusCode;
 use itil_back_db::entities::{
     self,
-    incidents::ci_relations::{self, IncidentCIRelation},
+    incidents::{
+        ci_relations::{self, IncidentCIRelation},
+        Incident,
+    },
 };
 use itil_back_macros::db_test;
 use itil_back_web::{
@@ -311,4 +314,35 @@ async fn test_delete_success(context: &DbTestContext) {
         .await
         .unwrap();
     assert_that!(relations, len(eq(0)));
+}
+
+#[db_test]
+async fn test_read_all_by_ci(context: &DbTestContext) {
+    post_incident(context).await;
+    let response = context
+        .app
+        .request(&format!("/api/incidents/byconfigitem/{}", Uuid::new_v4()))
+        .send()
+        .await;
+
+    assert_that!(response.status(), eq(StatusCode::OK));
+    let incidents: Vec<Incident> = response.into_body().into_json::<Vec<Incident>>().await;
+    assert_that!(incidents, len(eq(0)));
+
+    let incident_id = post_incident(context).await;
+    let ci_id = post_ci(context).await;
+    ci_relations::create(incident_id, ci_id, &context.db_pool)
+        .await
+        .unwrap();
+
+    let response = context
+        .app
+        .request(&format!("/api/incidents/byconfigitem/{}", ci_id))
+        .send()
+        .await;
+
+    assert_that!(response.status(), eq(StatusCode::OK));
+    let incidents: Vec<Incident> = response.into_body().into_json::<Vec<Incident>>().await;
+    assert_that!(incidents, len(eq(1)));
+    assert_that!(incidents.first().unwrap().id, eq(incident_id));
 }

@@ -64,6 +64,31 @@ pub async fn read_all_incidents(
 
 #[axum::debug_handler]
 #[utoipa::path(get,
+    path = "/byconfigitem/{id}",
+    responses(
+        (status = OK,
+            body = Vec<Incident>,
+            description = "List of Incidents."
+        ),
+        (status = INTERNAL_SERVER_ERROR,
+            description = "Database error."
+        )
+    ),
+    tag = apidoc::INCIDENTS_TAG
+)]
+pub async fn read_all_incidents_by_ci(
+    State(app_state): State<SharedAppState>,
+    Path(ci_id): Path<Uuid>,
+) -> Result<Json<Vec<Incident>>, Error> {
+    let incidents = incidents::load_all_by_ci(ci_id, &app_state.db_pool).await?;
+
+    info!("responding with {:?}", incidents);
+
+    Ok(Json(incidents))
+}
+
+#[axum::debug_handler]
+#[utoipa::path(get,
     path = "/{id}",
     responses(
         (status = OK,

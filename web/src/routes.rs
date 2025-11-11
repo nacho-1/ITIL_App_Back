@@ -81,6 +81,7 @@ fn incidents_router() -> OpenApiRouter<Arc<AppState>> {
             ci_relations::update_incident_ci_relation,
             ci_relations::delete_incident_ci_relation,
         ))
+        .routes(routes!(incidents::read_all_incidents_by_ci,))
 }
 
 fn problems_router() -> OpenApiRouter<Arc<AppState>> {

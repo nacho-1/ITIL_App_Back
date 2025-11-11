@@ -298,6 +298,28 @@ pub async fn load_all(
     Ok(incidents)
 }
 
+pub async fn load_all_by_ci(
+    ci_id: Uuid,
+    executor: impl sqlx::Executor<'_, Database = Postgres>,
+) -> Result<Vec<Incident>, crate::Error> {
+    let incidents = sqlx::query_as!(
+        Incident,
+        "
+        SELECT i.id, i.title, i.status as \"status: IncidentStatus\", i.created_at, i.resolved_at,
+            i.impact as \"impact: IncidentImpact\", i.urgency as \"urgency: IncidentUrgency\",
+            i.owner, i.asignee, i.description
+        FROM incidents AS i
+        INNER JOIN incidents_ci_relations AS r
+        ON i.id = r.incident_id
+        WHERE r.ci_id = $1",
+        ci_id
+    )
+    .fetch_all(executor)
+    .await?;
+
+    Ok(incidents)
+}
+
 pub async fn load(
     id: Uuid,
     executor: impl sqlx::Executor<'_, Database = Postgres>,

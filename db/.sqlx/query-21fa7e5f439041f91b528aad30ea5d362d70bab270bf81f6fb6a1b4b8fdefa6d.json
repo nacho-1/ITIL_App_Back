@@ -1,0 +1,109 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT i.id, i.title, i.status as \"status: IncidentStatus\", i.created_at, i.resolved_at,\n            i.impact as \"impact: IncidentImpact\", i.urgency as \"urgency: IncidentUrgency\",\n            i.owner, i.asignee, i.description\n        FROM incidents AS i\n        INNER JOIN incidents_ci_relations AS r\n        ON i.id = r.incident_id\n        WHERE r.ci_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: IncidentStatus",
+        "type_info": {
+          "Custom": {
+            "name": "incident_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "resolved_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "impact: IncidentImpact",
+        "type_info": {
+          "Custom": {
+            "name": "incident_impact",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "urgency: IncidentUrgency",
+        "type_info": {
+          "Custom": {
+            "name": "incident_urgency",
+            "kind": {
+              "Enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "owner",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "asignee",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "description",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "21fa7e5f439041f91b528aad30ea5d362d70bab270bf81f6fb6a1b4b8fdefa6d"
+}
