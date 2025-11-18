@@ -1,4 +1,5 @@
 #![allow(missing_docs)]
+mod changes_test;
 mod ci_changes_test;
 mod configuration_test;
 mod incidents_ci_relations_test;

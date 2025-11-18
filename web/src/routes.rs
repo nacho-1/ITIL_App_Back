@@ -1,8 +1,8 @@
 use crate::{
     apidoc::ApiDoc,
     controllers::{
-        configuration::{self, changes},
-        health,
+        changes::{self},
+        configuration, health,
         incidents::{self, ci_relations},
         problems::{self, incident_relations},
     },
@@ -27,6 +27,7 @@ pub fn init_routes(app_state: AppState) -> Router {
         .nest("/api/incidents", incidents_router())
         .nest("/api/configitems", configitems_router())
         .nest("/api/problems", problems_router())
+        .nest("/api/changes", changes_router())
         .with_state(shared_app_state)
         .split_for_parts();
 
@@ -52,13 +53,13 @@ fn configitems_router() -> OpenApiRouter<Arc<AppState>> {
             configuration::delete_ci,
         ))
         .routes(routes!(
-            changes::create_ci_change,
-            changes::read_all_ci_changes,
+            configuration::changes::create_ci_change,
+            configuration::changes::read_all_ci_changes,
         ))
         .routes(routes!(
-            changes::read_one_ci_change,
-            changes::update_ci_change,
-            changes::delete_ci_change,
+            configuration::changes::read_one_ci_change,
+            configuration::changes::update_ci_change,
+            configuration::changes::delete_ci_change,
         ))
 }
 
@@ -102,5 +103,15 @@ fn problems_router() -> OpenApiRouter<Arc<AppState>> {
         .routes(routes!(
             incident_relations::update_problem_incident_relation,
             incident_relations::delete_problem_incident_relation,
+        ))
+}
+
+fn changes_router() -> OpenApiRouter<Arc<AppState>> {
+    OpenApiRouter::new()
+        .routes(routes!(changes::create_rfc, changes::read_all_rfcs,))
+        .routes(routes!(
+            changes::read_one_rfc,
+            changes::update_rfc,
+            changes::delete_rfc,
         ))
 }

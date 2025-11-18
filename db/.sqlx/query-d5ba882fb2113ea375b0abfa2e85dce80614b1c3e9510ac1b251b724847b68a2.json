@@ -1,0 +1,87 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE rfcs\n        SET title = COALESCE($1, title), status = COALESCE($2, status), created_at = COALESCE($3, created_at),\n            finished_at = CASE\n                WHEN $4 then finished_at\n                ELSE $5\n            END,\n            requester = COALESCE($6, requester), description = COALESCE($7, description)\n        WHERE id = $8\n        RETURNING id, title, status as \"status: RFCStatus\", created_at, finished_at, requester, description",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: RFCStatus",
+        "type_info": {
+          "Custom": {
+            "name": "rfcstatus",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "finished_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "requester",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "rfcstatus",
+            "kind": {
+              "Enum": [
+                "open",
+                "inprogress",
+                "closed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Bool",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "d5ba882fb2113ea375b0abfa2e85dce80614b1c3e9510ac1b251b724847b68a2"
+}
