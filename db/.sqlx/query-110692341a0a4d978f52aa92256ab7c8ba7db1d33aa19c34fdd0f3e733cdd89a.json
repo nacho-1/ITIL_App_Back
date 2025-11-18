@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO rfc_incident_relations (rfc_id, incident_id)\n        VALUES ($1, $2)\n        RETURNING id, rfc_id, incident_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "rfc_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "incident_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "110692341a0a4d978f52aa92256ab7c8ba7db1d33aa19c34fdd0f3e733cdd89a"
+}

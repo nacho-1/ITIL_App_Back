@@ -3,8 +3,8 @@ use crate::{
     controllers::{
         changes::{self},
         configuration, health,
-        incidents::{self, ci_relations},
-        problems::{self, incident_relations},
+        incidents::{self},
+        problems::{self},
     },
     state::AppState,
 };
@@ -75,12 +75,12 @@ fn incidents_router() -> OpenApiRouter<Arc<AppState>> {
             incidents::delete_incident,
         ))
         .routes(routes!(
-            ci_relations::create_incident_ci_relation,
-            ci_relations::read_all_incident_ci_relations,
+            incidents::ci_relations::create_incident_ci_relation,
+            incidents::ci_relations::read_all_incident_ci_relations,
         ))
         .routes(routes!(
-            ci_relations::update_incident_ci_relation,
-            ci_relations::delete_incident_ci_relation,
+            incidents::ci_relations::update_incident_ci_relation,
+            incidents::ci_relations::delete_incident_ci_relation,
         ))
         .routes(routes!(incidents::read_all_incidents_by_ci,))
 }
@@ -97,12 +97,12 @@ fn problems_router() -> OpenApiRouter<Arc<AppState>> {
             problems::delete_problem,
         ))
         .routes(routes!(
-            incident_relations::create_problem_incident_relation,
-            incident_relations::read_all_problem_incident_relations,
+            problems::incident_relations::create_problem_incident_relation,
+            problems::incident_relations::read_all_problem_incident_relations,
         ))
         .routes(routes!(
-            incident_relations::update_problem_incident_relation,
-            incident_relations::delete_problem_incident_relation,
+            problems::incident_relations::update_problem_incident_relation,
+            problems::incident_relations::delete_problem_incident_relation,
         ))
 }
 
@@ -113,5 +113,12 @@ fn changes_router() -> OpenApiRouter<Arc<AppState>> {
             changes::read_one_rfc,
             changes::update_rfc,
             changes::delete_rfc,
+        ))
+        .routes(routes!(
+            changes::incident_relations::create_rfc_incident_relation,
+            changes::incident_relations::read_all_rfc_incident_relations,
+        ))
+        .routes(routes!(
+            changes::incident_relations::delete_rfc_incident_relation,
         ))
 }

@@ -4,6 +4,8 @@ use itil_back_db::entities::changes::{self, RFCCreateset, RFCUpdateset, RFC};
 use tracing::info;
 use uuid::Uuid;
 
+pub mod incident_relations;
+
 #[axum::debug_handler]
 #[utoipa::path(post,
     path = "",

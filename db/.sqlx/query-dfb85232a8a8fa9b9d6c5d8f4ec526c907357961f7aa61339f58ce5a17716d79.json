@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM rfc_incident_relations\n        WHERE rfc_id = $1\n        AND id = $2\n        RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dfb85232a8a8fa9b9d6c5d8f4ec526c907357961f7aa61339f58ce5a17716d79"
+}

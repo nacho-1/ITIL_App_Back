@@ -10,6 +10,8 @@ use uuid::Uuid;
 use validator::Validate;
 use validator::ValidationError;
 
+pub mod incident_relations;
+
 /// RFC in the database.
 #[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(any(feature = "test-helpers", test), derive(Deserialize, PartialEq))]
