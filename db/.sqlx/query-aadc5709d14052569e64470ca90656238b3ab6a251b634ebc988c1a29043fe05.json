@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, rfc_id, problem_id\n        FROM rfc_problem_relations\n        WHERE rfc_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "rfc_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "problem_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "aadc5709d14052569e64470ca90656238b3ab6a251b634ebc988c1a29043fe05"
+}

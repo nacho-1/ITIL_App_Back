@@ -11,6 +11,7 @@ use validator::Validate;
 use validator::ValidationError;
 
 pub mod incident_relations;
+pub mod problem_relations;
 
 /// RFC in the database.
 #[derive(Debug, Serialize, ToSchema)]

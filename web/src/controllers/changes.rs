@@ -5,6 +5,7 @@ use tracing::info;
 use uuid::Uuid;
 
 pub mod incident_relations;
+pub mod problem_relations;
 
 #[axum::debug_handler]
 #[utoipa::path(post,

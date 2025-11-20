@@ -121,4 +121,11 @@ fn changes_router() -> OpenApiRouter<Arc<AppState>> {
         .routes(routes!(
             changes::incident_relations::delete_rfc_incident_relation,
         ))
+        .routes(routes!(
+            changes::problem_relations::create_rfc_problem_relation,
+            changes::problem_relations::read_all_rfc_problem_relations,
+        ))
+        .routes(routes!(
+            changes::problem_relations::delete_rfc_problem_relation,
+        ))
 }
